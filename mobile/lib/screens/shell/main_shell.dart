@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme.dart';
 import '../home/home_screen.dart';
+import '../equipment/equipment_screen.dart';
 import '../ppr/ppr_list_screen.dart';
 import '../scanner/qr_scanner_screen.dart';
 import '../profile/profile_screen.dart';
@@ -17,8 +18,9 @@ class _MainShellState extends State<MainShell> {
 
   final _screens = const [
     HomeScreen(),
+    EquipmentListScreen(),
+    QrScannerScreen(), // placeholder — markaziy tugma orqali
     PprListScreen(),
-    QrScannerScreen(),
     ProfileScreen(),
   ];
 
@@ -33,14 +35,15 @@ class _MainShellState extends State<MainShell> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _NavItem(icon: Icons.dashboard_rounded, label: 'Bosh sahifa', isActive: _currentIndex == 0, onTap: () => setState(() => _currentIndex = 0)),
-                _NavItem(icon: Icons.build_rounded, label: 'PPR', isActive: _currentIndex == 1, onTap: () => setState(() => _currentIndex = 1)),
-                _ScanButton(onTap: () => setState(() => _currentIndex = 2)),
-                _NavItem(icon: Icons.person_rounded, label: 'Profil', isActive: _currentIndex == 3, onTap: () => setState(() => _currentIndex = 3)),
+                _NavItem(icon: Icons.computer_rounded, label: 'Uskunalar', isActive: _currentIndex == 1, onTap: () => setState(() => _currentIndex = 1)),
+                _ScanButton(isActive: _currentIndex == 2, onTap: () => setState(() => _currentIndex = 2)),
+                _NavItem(icon: Icons.build_rounded, label: 'PPR', isActive: _currentIndex == 3, onTap: () => setState(() => _currentIndex = 3)),
+                _NavItem(icon: Icons.person_rounded, label: 'Profil', isActive: _currentIndex == 4, onTap: () => setState(() => _currentIndex = 4)),
               ],
             ),
           ),
@@ -62,9 +65,10 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isActive ? AppTheme.primary.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -83,22 +87,25 @@ class _NavItem extends StatelessWidget {
 }
 
 class _ScanButton extends StatelessWidget {
+  final bool isActive;
   final VoidCallback onTap;
-  const _ScanButton({required this.onTap});
+  const _ScanButton({required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 56,
-        height: 56,
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF2563EB), Color(0xFF7C3AED)]),
+          gradient: LinearGradient(colors: isActive
+              ? [const Color(0xFF1D4ED8), const Color(0xFF6D28D9)]
+              : [const Color(0xFF2563EB), const Color(0xFF7C3AED)]),
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
         ),
-        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 26),
+        child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white, size: 24),
       ),
     );
   }

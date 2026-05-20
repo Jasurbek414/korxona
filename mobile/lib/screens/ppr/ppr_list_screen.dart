@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../../data/models.dart';
+import 'ppr_detail_screen.dart';
 
 class PprListScreen extends ConsumerStatefulWidget {
   const PprListScreen({super.key});
@@ -77,6 +78,10 @@ class _TaskCard extends StatelessWidget {
   final PprTask task;
   const _TaskCard({required this.task});
 
+  void _openDetail(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => PprDetailScreen(taskId: task.id)));
+  }
+
   Color _statusColor() => switch (task.status) {
         'SCHEDULED' => AppTheme.info,
         'IN_PROGRESS' => AppTheme.warning,
@@ -94,7 +99,9 @@ class _TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: () => _openDetail(context),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -139,6 +146,7 @@ class _TaskCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
       ),
     );
   }
