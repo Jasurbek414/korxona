@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { userRequestService } from '../../services/dataService';
 import toast from 'react-hot-toast';
+import { HiOutlinePencilSquare, HiOutlinePlus } from 'react-icons/hi2';
 
 const STATUS_MAP = {
-  NEW: { badge: 'badge-blue', icon: '🆕', label: 'Yangi' },
-  IN_REVIEW: { badge: 'badge-yellow', icon: '🔍', label: "Ko'rib chiqilmoqda" },
-  APPROVED: { badge: 'badge-green', icon: '✅', label: 'Tasdiqlangan' },
-  REJECTED: { badge: 'badge-red', icon: '❌', label: 'Rad etilgan' },
-  COMPLETED: { badge: 'badge-emerald', icon: '🏁', label: 'Bajarildi' },
+  NEW: { badge: '#3b82f6', bg: '#eff6ff', icon: '🆕', label: 'Yangi' },
+  IN_REVIEW: { badge: '#eab308', bg: '#fef9c3', icon: '🔍', label: "Ko'rib chiqilmoqda" },
+  APPROVED: { badge: '#10b981', bg: '#ecfdf5', icon: '✅', label: 'Tasdiqlangan' },
+  REJECTED: { badge: '#ef4444', bg: '#fef2f2', icon: '❌', label: 'Rad etilgan' },
+  COMPLETED: { badge: '#059669', bg: '#d1fae5', icon: '🏁', label: 'Bajarildi' },
 };
 
 const REQUEST_TYPES = [
@@ -18,6 +19,98 @@ const REQUEST_TYPES = [
   { value: 'TRANSFER', label: "Uskuna ko'chirish" },
   { value: 'OTHER', label: 'Boshqa' },
 ];
+
+const PRIORITIES = [
+  { value: 'LOW', label: 'Past', color: '#64748b', bg: '#f1f5f9' },
+  { value: 'NORMAL', label: "O'rta", color: '#0284c7', bg: '#e0f2fe' },
+  { value: 'HIGH', label: 'Yuqori', color: '#ea580c', bg: '#ffedd5' },
+];
+
+// --- CUSTOM SELECT COMPONENT ---
+const CustomSelect = ({ value, onChange, options, defaultLabel }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  const selectedOption = options.find(o => o.value == value);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          width: '100%', padding: '14px 16px', borderRadius: '12px', 
+          border: isOpen ? '1px solid #3b82f6' : '1px solid #cbd5e1', 
+          background: '#fff', fontSize: '15px', 
+          color: value ? '#0f172a' : '#64748b', 
+          outline: 'none', cursor: 'pointer', 
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          boxShadow: isOpen ? '0 0 0 4px rgba(59,130,246,0.1)' : 'none', 
+          transition: 'all 0.2s',
+          fontWeight: 500,
+          boxSizing: 'border-box'
+        }}
+      >
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {selectedOption ? selectedOption.label : defaultLabel}
+        </span>
+        <svg style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, marginLeft: '8px' }} width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+      
+      {isOpen && (
+        <div style={{ 
+          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px', 
+          background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', 
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', 
+          zIndex: 50, maxHeight: '280px', overflowY: 'auto', padding: '8px' 
+        }}>
+          {defaultLabel && (
+            <div 
+              onClick={() => { onChange(''); setIsOpen(false); }}
+              style={{ 
+                padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+                color: value === '' ? '#2563eb' : '#475569', 
+                background: value === '' ? '#eff6ff' : 'transparent', 
+                fontWeight: value === '' ? 700 : 500,
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => { if(value !== '') e.target.style.background = '#f8fafc' }}
+              onMouseLeave={(e) => { if(value !== '') e.target.style.background = 'transparent' }}
+            >
+              {defaultLabel}
+            </div>
+          )}
+          {options.map((opt) => (
+            <div 
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setIsOpen(false); }}
+              style={{ 
+                padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+                color: value == opt.value ? '#2563eb' : '#475569', 
+                background: value == opt.value ? '#eff6ff' : 'transparent', 
+                fontWeight: value == opt.value ? 700 : 500, marginTop: '4px',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => { if(value != opt.value) e.target.style.background = '#f8fafc' }}
+              onMouseLeave={(e) => { if(value != opt.value) e.target.style.background = 'transparent' }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+// --- END CUSTOM SELECT COMPONENT ---
 
 export default function UserRequestsPage() {
   const { user } = useAuthContext();
@@ -75,29 +168,48 @@ export default function UserRequestsPage() {
     REJECTED: requests.filter(r => r.status === 'REJECTED').length,
   };
 
+  const inputStyle = { width: '100%', padding: '14px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '15px', fontWeight: 500, color: '#334155', outline: 'none', transition: 'all 0.3s', boxSizing: 'border-box' };
+
   return (
-    <div className="animate-fade-in">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">📝 Arizalar</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            {isAdmin ? 'Barcha foydalanuvchilar arizalari' : 'Sizning arizalaringiz'}
-          </p>
+    <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #f43f5e, #be123c)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(244,63,94,0.3)' }}>
+            <HiOutlinePencilSquare style={{ color: '#fff', fontSize: '28px' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', tracking: 'tight' }}>Arizalar</h1>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              {isAdmin ? 'Barcha foydalanuvchilar arizalari' : 'Sizning arizalaringiz'}
+            </p>
+          </div>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn btn-primary">+ Yangi ariza</button>
+        <button onClick={() => setShowModal(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg, #2563eb, #3b82f6)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', transition: 'all 0.3s' }}
+          className="hover:-translate-y-1 hover:shadow-lg"
+        >
+          <HiOutlinePlus style={{ fontSize: '20px' }} /> Yangi ariza
+        </button>
       </div>
 
       {/* Status filtrlari */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
         {Object.entries({ ALL: 'Barchasi', NEW: '🆕 Yangi', IN_REVIEW: '🔍 Ko\'rib chiqilmoqda', APPROVED: '✅ Tasdiqlangan', REJECTED: '❌ Rad etilgan' }).map(([key, label]) => (
           <button key={key} onClick={() => setFilter(key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              filter === key
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
-            }`}>
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '16px',
+              fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap',
+              background: filter === key ? '#3b82f6' : '#fff',
+              color: filter === key ? '#fff' : '#475569',
+              boxShadow: filter === key ? '0 10px 15px -3px rgba(59,130,246,0.3)' : '0 4px 6px -1px rgba(0,0,0,0.05)',
+            }}>
             {label}
-            <span className={`text-xs px-1.5 py-0.5 rounded-full ${filter === key ? 'bg-white/20' : 'bg-slate-100'}`}>
+            <span style={{
+              fontSize: '12px', padding: '2px 8px', borderRadius: '999px', fontWeight: 800,
+              background: filter === key ? 'rgba(255,255,255,0.2)' : '#f1f5f9',
+              color: filter === key ? '#fff' : '#64748b'
+            }}>
               {statusCounts[key]}
             </span>
           </button>
@@ -105,73 +217,93 @@ export default function UserRequestsPage() {
       </div>
 
       {/* Arizalar ro'yxati */}
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {loading ? (
-          <div className="card p-16 text-center">
-            <div className="w-10 h-10 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">Yuklanmoqda...</p>
+          <div style={{ background: '#fff', padding: '64px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)' }}>
+            <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', margin: '0 auto 16px' }} />
+            <span style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 600 }}>Arizalar yuklanmoqda...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="card p-16 text-center text-slate-400">
-            <p className="text-4xl mb-2">📝</p>
-            <p>Arizalar topilmadi</p>
+          <div style={{ background: '#fff', padding: '64px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)' }}>
+            <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📝</p>
+            <p style={{ color: '#94a3b8', fontSize: '16px', fontWeight: 600, margin: 0 }}>Ushbu bo'limda arizalar topilmadi</p>
           </div>
         ) : (
           filtered.map((req, i) => {
             const st = STATUS_MAP[req.status] || STATUS_MAP.NEW;
+            const priority = PRIORITIES.find(p => p.value === req.priority) || PRIORITIES[1];
             return (
-              <div key={req.id} className="card p-5 hover:shadow-md transition-shadow animate-fade-in" style={{ animationDelay: `${i * 40}ms` }}>
-                <div className="flex items-start gap-4">
-                  {/* Chap — status icon */}
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
-                    req.status === 'APPROVED' ? 'bg-emerald-100' :
-                    req.status === 'REJECTED' ? 'bg-red-100' :
-                    req.status === 'IN_REVIEW' ? 'bg-yellow-100' : 'bg-blue-100'
-                  }`}>
-                    {st.icon}
-                  </div>
+              <div key={req.id} className="animate-fade-in hover:-translate-y-1 hover:shadow-xl" style={{ animationDelay: `${i * 40}ms`, background: '#fff', borderRadius: '20px', padding: '24px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', transition: 'all 0.3s', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                
+                {/* Chap — status icon */}
+                <div style={{ width: '64px', height: '64px', borderRadius: '20px', backgroundColor: st.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', flexShrink: 0 }}>
+                  {st.icon}
+                </div>
 
-                  {/* O'rta — tafsilot */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-bold text-slate-800 truncate">{req.subject}</h3>
-                      <span className={`badge ${st.badge} text-xs`}>{st.label}</span>
-                      <span className={`badge text-xs ${req.priority === 'HIGH' ? 'badge-red' : req.priority === 'LOW' ? 'badge-slate' : 'badge-blue'}`}>
-                        {req.priority}
-                      </span>
+                {/* O'rta — tafsilot */}
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{req.subject}</h3>
+                    <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, backgroundColor: st.bg, color: st.badge }}>
+                      {st.label}
+                    </span>
+                    <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, backgroundColor: priority.bg, color: priority.color }}>
+                      {priority.label}
+                    </span>
+                  </div>
+                  
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {req.description}
+                  </p>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+                      <span style={{ fontSize: '16px' }}>📋</span> {REQUEST_TYPES.find(t => t.value === req.type)?.label || req.type}
                     </div>
-                    <p className="text-xs text-slate-500 line-clamp-2">{req.description}</p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
-                      <span>📋 {REQUEST_TYPES.find(t => t.value === req.type)?.label || req.type}</span>
-                      <span>👤 {req.createdByName || 'Noma\'lum'}</span>
-                      <span>📅 {req.createdAt?.slice(0, 10)}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+                      <span style={{ fontSize: '16px' }}>👤</span> {req.createdByName || 'Noma\'lum'}
                     </div>
-                    {req.adminComment && (
-                      <div className="mt-2 p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-600">
-                        💬 Admin izohi: {req.adminComment}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+                      <span style={{ fontSize: '16px' }}>📅</span> {req.createdAt?.slice(0, 16).replace('T', ' ')}
+                    </div>
+                    {req.equipmentId && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
+                        <span style={{ fontSize: '16px' }}>🔧</span> ID: {req.equipmentId}
                       </div>
                     )}
                   </div>
 
-                  {/* O'ng — admin amallar */}
-                  {isAdmin && req.status === 'NEW' && (
-                    <div className="flex gap-2 flex-shrink-0">
-                      <button onClick={() => handleStatusChange(req.id, 'IN_REVIEW', '')}
-                        className="btn btn-outline btn-sm">🔍 Ko'rish</button>
-                    </div>
-                  )}
-                  {isAdmin && req.status === 'IN_REVIEW' && (
-                    <div className="flex gap-2 flex-shrink-0">
-                      <button onClick={() => handleStatusChange(req.id, 'APPROVED', 'Tasdiqlandi')}
-                        className="btn btn-success btn-sm">✅</button>
-                      <button onClick={() => {
-                        const reason = prompt("Rad etish sababi:");
-                        if (reason) handleStatusChange(req.id, 'REJECTED', reason);
-                      }}
-                        className="btn btn-danger btn-sm">❌</button>
+                  {req.adminComment && (
+                    <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', fontSize: '14px', fontWeight: 500 }}>
+                      <span style={{ fontWeight: 800, color: '#0f172a' }}>💬 Admin izohi:</span> {req.adminComment}
                     </div>
                   )}
                 </div>
+
+                {/* O'ng — admin amallar */}
+                {isAdmin && req.status === 'NEW' && (
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button onClick={() => handleStatusChange(req.id, 'IN_REVIEW', '')}
+                      style={{ padding: '10px 20px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#334155', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-slate-50">
+                      🔍 Ko'rish
+                    </button>
+                  </div>
+                )}
+                {isAdmin && req.status === 'IN_REVIEW' && (
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button onClick={() => handleStatusChange(req.id, 'APPROVED', 'Tasdiqlandi')}
+                      style={{ padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#10b981', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} className="hover:-translate-y-1">
+                      ✅ Tasdiqlash
+                    </button>
+                    <button onClick={() => {
+                      const reason = prompt("Rad etish sababi:");
+                      if (reason) handleStatusChange(req.id, 'REJECTED', reason);
+                    }}
+                      style={{ padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#ef4444', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }} className="hover:-translate-y-1">
+                      ❌ Rad etish
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })
@@ -180,46 +312,50 @@ export default function UserRequestsPage() {
 
       {/* Yangi ariza modali */}
       {showModal && createPortal(
-        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
-          <div className="modal-content max-w-lg mx-4 p-6">
-            <h2 className="text-xl font-bold text-slate-800 mb-5">📝 Yangi ariza yuborish</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="animate-fade-in" style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '600px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', margin: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>📝 Yangi ariza yuborish</h2>
+            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Ariza turi</label>
-                  <select value={form.type} onChange={e => setForm({...form, type: e.target.value})} className="input-field">
-                    {REQUEST_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Ariza turi</label>
+                  <CustomSelect 
+                    value={form.type} onChange={val => setForm({...form, type: val})}
+                    options={REQUEST_TYPES} defaultLabel="Tanlang"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Ustuvorlik</label>
-                  <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} className="input-field">
-                    <option value="LOW">Past</option>
-                    <option value="NORMAL">O'rta</option>
-                    <option value="HIGH">Yuqori</option>
-                  </select>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Ustuvorlik</label>
+                  <CustomSelect 
+                    value={form.priority} onChange={val => setForm({...form, priority: val})}
+                    options={PRIORITIES.map(p => ({ value: p.value, label: p.label }))} defaultLabel="Tanlang"
+                  />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Mavzu *</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Mavzu *</label>
                   <input required value={form.subject} onChange={e => setForm({...form, subject: e.target.value})}
-                    className="input-field" placeholder="Ariza mavzusi" />
+                    style={inputStyle} placeholder="Ariza mavzusi" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Uskuna ID *</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Uskuna ID *</label>
                   <input required type="number" value={form.equipmentId} onChange={e => setForm({...form, equipmentId: e.target.value})}
-                    className="input-field" placeholder="Masalan: 12" />
+                    style={inputStyle} placeholder="Masalan: 12" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1.5">Tavsif *</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Tavsif *</label>
                 <textarea required rows={4} value={form.description} onChange={e => setForm({...form, description: e.target.value})}
-                  className="input-field" placeholder="Batafsil tushuntiring..." />
+                  style={{ ...inputStyle, resize: 'none', height: '100px' }} placeholder="Batafsil tushuntiring..." />
               </div>
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn btn-primary flex-1">📤 Yuborish</button>
-                <button type="button" onClick={() => setShowModal(false)} className="btn btn-outline px-6">Bekor</button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <button type="submit" style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #2563eb, #3b82f6)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }} className="hover:-translate-y-1 transition-all hover:shadow-lg">
+                  📤 Yuborish
+                </button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ padding: '14px 24px', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }} className="hover:bg-slate-100 transition-colors">
+                  Bekor
+                </button>
               </div>
             </form>
           </div>
