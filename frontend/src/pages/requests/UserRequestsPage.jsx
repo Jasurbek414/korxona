@@ -3,14 +3,27 @@ import { createPortal } from 'react-dom';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { userRequestService } from '../../services/dataService';
 import toast from 'react-hot-toast';
-import { HiOutlinePencilSquare, HiOutlinePlus } from 'react-icons/hi2';
+import { 
+  HiOutlinePencilSquare, 
+  HiOutlinePlus,
+  HiOutlineSparkles,
+  HiOutlineMagnifyingGlass,
+  HiOutlineCheckCircle,
+  HiOutlineXCircle,
+  HiOutlineFlag,
+  HiOutlineClipboardDocumentList,
+  HiOutlineUser,
+  HiOutlineCalendar,
+  HiOutlineWrenchScrewdriver,
+  HiOutlineChatBubbleLeftEllipsis
+} from 'react-icons/hi2';
 
 const STATUS_MAP = {
-  NEW: { badge: '#3b82f6', bg: '#eff6ff', icon: '🆕', label: 'Yangi' },
-  IN_REVIEW: { badge: '#eab308', bg: '#fef9c3', icon: '🔍', label: "Ko'rib chiqilmoqda" },
-  APPROVED: { badge: '#10b981', bg: '#ecfdf5', icon: '✅', label: 'Tasdiqlangan' },
-  REJECTED: { badge: '#ef4444', bg: '#fef2f2', icon: '❌', label: 'Rad etilgan' },
-  COMPLETED: { badge: '#059669', bg: '#d1fae5', icon: '🏁', label: 'Bajarildi' },
+  NEW: { badge: '#3b82f6', bg: '#eff6ff', icon: <HiOutlineSparkles />, label: 'Yangi' },
+  IN_REVIEW: { badge: '#eab308', bg: '#fef9c3', icon: <HiOutlineMagnifyingGlass />, label: "Ko'rib chiqilmoqda" },
+  APPROVED: { badge: '#10b981', bg: '#ecfdf5', icon: <HiOutlineCheckCircle />, label: 'Tasdiqlangan' },
+  REJECTED: { badge: '#ef4444', bg: '#fef2f2', icon: <HiOutlineXCircle />, label: 'Rad etilgan' },
+  COMPLETED: { badge: '#059669', bg: '#d1fae5', icon: <HiOutlineFlag />, label: 'Bajarildi' },
 };
 
 const REQUEST_TYPES = [
@@ -195,7 +208,13 @@ export default function UserRequestsPage() {
 
       {/* Status filtrlari */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-        {Object.entries({ ALL: 'Barchasi', NEW: '🆕 Yangi', IN_REVIEW: '🔍 Ko\'rib chiqilmoqda', APPROVED: '✅ Tasdiqlangan', REJECTED: '❌ Rad etilgan' }).map(([key, label]) => (
+        {Object.entries({ 
+          ALL: { label: 'Barchasi' }, 
+          NEW: { icon: <HiOutlineSparkles style={{ fontSize: '18px' }} />, label: 'Yangi' }, 
+          IN_REVIEW: { icon: <HiOutlineMagnifyingGlass style={{ fontSize: '18px' }} />, label: "Ko'rib chiqilmoqda" }, 
+          APPROVED: { icon: <HiOutlineCheckCircle style={{ fontSize: '18px' }} />, label: 'Tasdiqlangan' }, 
+          REJECTED: { icon: <HiOutlineXCircle style={{ fontSize: '18px' }} />, label: 'Rad etilgan' } 
+        }).map(([key, { icon, label }]) => (
           <button key={key} onClick={() => setFilter(key)}
             style={{
               display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '16px',
@@ -204,6 +223,7 @@ export default function UserRequestsPage() {
               color: filter === key ? '#fff' : '#475569',
               boxShadow: filter === key ? '0 10px 15px -3px rgba(59,130,246,0.3)' : '0 4px 6px -1px rgba(0,0,0,0.05)',
             }}>
+            {icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
             {label}
             <span style={{
               fontSize: '12px', padding: '2px 8px', borderRadius: '999px', fontWeight: 800,
@@ -225,7 +245,7 @@ export default function UserRequestsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ background: '#fff', padding: '64px', borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)' }}>
-            <p style={{ fontSize: '48px', margin: '0 0 16px 0' }}>📝</p>
+            <HiOutlinePencilSquare style={{ fontSize: '64px', color: '#cbd5e1', margin: '0 auto 16px', display: 'block' }} />
             <p style={{ color: '#94a3b8', fontSize: '16px', fontWeight: 600, margin: 0 }}>Ushbu bo'limda arizalar topilmadi</p>
           </div>
         ) : (
@@ -258,24 +278,27 @@ export default function UserRequestsPage() {
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                      <span style={{ fontSize: '16px' }}>📋</span> {REQUEST_TYPES.find(t => t.value === req.type)?.label || req.type}
+                      <HiOutlineClipboardDocumentList style={{ fontSize: '18px' }} /> {REQUEST_TYPES.find(t => t.value === req.type)?.label || req.type}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                      <span style={{ fontSize: '16px' }}>👤</span> {req.createdByName || 'Noma\'lum'}
+                      <HiOutlineUser style={{ fontSize: '18px' }} /> {req.createdByName || 'Noma\'lum'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                      <span style={{ fontSize: '16px' }}>📅</span> {req.createdAt?.slice(0, 16).replace('T', ' ')}
+                      <HiOutlineCalendar style={{ fontSize: '18px' }} /> {req.createdAt?.slice(0, 16).replace('T', ' ')}
                     </div>
                     {req.equipmentId && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                        <span style={{ fontSize: '16px' }}>🔧</span> ID: {req.equipmentId}
+                        <HiOutlineWrenchScrewdriver style={{ fontSize: '18px' }} /> ID: {req.equipmentId}
                       </div>
                     )}
                   </div>
 
                   {req.adminComment && (
-                    <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', fontSize: '14px', fontWeight: 500 }}>
-                      <span style={{ fontWeight: 800, color: '#0f172a' }}>💬 Admin izohi:</span> {req.adminComment}
+                    <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                      <HiOutlineChatBubbleLeftEllipsis style={{ fontSize: '20px', color: '#3b82f6', flexShrink: 0, marginTop: '2px' }} />
+                      <div>
+                        <span style={{ fontWeight: 800, color: '#0f172a', marginRight: '6px' }}>Admin izohi:</span> {req.adminComment}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -284,23 +307,23 @@ export default function UserRequestsPage() {
                 {isAdmin && req.status === 'NEW' && (
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button onClick={() => handleStatusChange(req.id, 'IN_REVIEW', '')}
-                      style={{ padding: '10px 20px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#334155', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-slate-50">
-                      🔍 Ko'rish
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#334155', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-slate-50">
+                      <HiOutlineMagnifyingGlass style={{ fontSize: '18px' }} /> Ko'rish
                     </button>
                   </div>
                 )}
                 {isAdmin && req.status === 'IN_REVIEW' && (
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button onClick={() => handleStatusChange(req.id, 'APPROVED', 'Tasdiqlandi')}
-                      style={{ padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#10b981', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} className="hover:-translate-y-1">
-                      ✅ Tasdiqlash
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#10b981', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} className="hover:-translate-y-1">
+                      <HiOutlineCheckCircle style={{ fontSize: '18px' }} /> Tasdiqlash
                     </button>
                     <button onClick={() => {
                       const reason = prompt("Rad etish sababi:");
                       if (reason) handleStatusChange(req.id, 'REJECTED', reason);
                     }}
-                      style={{ padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#ef4444', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }} className="hover:-translate-y-1">
-                      ❌ Rad etish
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#ef4444', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(239,68,68,0.3)' }} className="hover:-translate-y-1">
+                      <HiOutlineXCircle style={{ fontSize: '18px' }} /> Rad etish
                     </button>
                   </div>
                 )}
@@ -314,7 +337,12 @@ export default function UserRequestsPage() {
       {showModal && createPortal(
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
           <div className="animate-fade-in" style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '600px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', margin: '16px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>📝 Yangi ariza yuborish</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <HiOutlinePencilSquare style={{ color: '#3b82f6', fontSize: '24px' }} />
+              </div>
+              Yangi ariza yuborish
+            </h2>
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
