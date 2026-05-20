@@ -20,9 +20,12 @@ import SettingsPage from './pages/admin/SettingsPage';
 import UserRequestsPage from './pages/requests/UserRequestsPage';
 import ProfilePage from './pages/profile/ProfilePage';
 
+import { Toaster } from 'react-hot-toast';
+
 export default function App() {
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
