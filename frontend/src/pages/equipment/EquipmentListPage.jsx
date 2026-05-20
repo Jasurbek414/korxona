@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { equipmentService, referenceService } from '../../services/dataService';
 import { useAuth } from '../../hooks/useAuthContext';
@@ -16,6 +16,89 @@ import {
   HiOutlineXMark,
   HiOutlineComputerDesktop,
 } from 'react-icons/hi2';
+
+// --- CUSTOM SELECT COMPONENT ---
+const CustomSelect = ({ value, onChange, options, defaultLabel }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  const selectedOption = options.find(o => o.value == value);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', flex: '1 1 200px' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          padding: '12px 16px', borderRadius: '12px', 
+          border: isOpen ? '1px solid #3b82f6' : '1px solid #cbd5e1', 
+          background: '#fff', fontSize: '14px', 
+          color: value ? '#0f172a' : '#64748b', 
+          outline: 'none', cursor: 'pointer', 
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          boxShadow: isOpen ? '0 0 0 4px rgba(59,130,246,0.1)' : 'none', 
+          transition: 'all 0.2s',
+          fontWeight: 500
+        }}
+      >
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {selectedOption ? selectedOption.label : defaultLabel}
+        </span>
+        <svg style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, marginLeft: '8px' }} width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+      
+      {isOpen && (
+        <div style={{ 
+          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px', 
+          background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', 
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', 
+          zIndex: 50, maxHeight: '280px', overflowY: 'auto', padding: '8px' 
+        }}>
+          <div 
+            onClick={() => { onChange(''); setIsOpen(false); }}
+            style={{ 
+              padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+              color: value === '' ? '#2563eb' : '#475569', 
+              background: value === '' ? '#eff6ff' : 'transparent', 
+              fontWeight: value === '' ? 700 : 500,
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => { if(value !== '') e.target.style.background = '#f8fafc' }}
+            onMouseLeave={(e) => { if(value !== '') e.target.style.background = 'transparent' }}
+          >
+            {defaultLabel}
+          </div>
+          {options.map((opt) => (
+            <div 
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setIsOpen(false); }}
+              style={{ 
+                padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+                color: value == opt.value ? '#2563eb' : '#475569', 
+                background: value == opt.value ? '#eff6ff' : 'transparent', 
+                fontWeight: value == opt.value ? 700 : 500, marginTop: '4px',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => { if(value != opt.value) e.target.style.background = '#f8fafc' }}
+              onMouseLeave={(e) => { if(value != opt.value) e.target.style.background = 'transparent' }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+// --- END CUSTOM SELECT COMPONENT ---
 
 export default function EquipmentListPage() {
   const { isOperator } = useAuth();
@@ -186,36 +269,42 @@ export default function EquipmentListPage() {
           </button>
         </div>
 
-        {/* Kengaytirilgan filtrlar */}
+        {/* Kengaytirilgan filtrlar - Custom Select Component */}
         {showFilters && (
           <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #e2e8f0', display: 'flex', flexWrap: 'wrap', gap: '16px' }} className="animate-fade-in">
-            <select value={filters.categoryId} onChange={(e) => setFilters({...filters, categoryId: e.target.value})}
-              style={{ flex: '1 1 200px', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '14px', color: '#334155', outline: 'none', cursor: 'pointer' }}>
-              <option value="">Barcha toifalar</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.nameUz}</option>)}
-            </select>
-            <select value={filters.statusId} onChange={(e) => setFilters({...filters, statusId: e.target.value})}
-              style={{ flex: '1 1 200px', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '14px', color: '#334155', outline: 'none', cursor: 'pointer' }}>
-              <option value="">Barcha statuslar</option>
-              {statuses.map(s => <option key={s.id} value={s.id}>{s.nameUz}</option>)}
-            </select>
-            <select value={filters.locationId} onChange={(e) => setFilters({...filters, locationId: e.target.value})}
-              style={{ flex: '1 1 200px', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '14px', color: '#334155', outline: 'none', cursor: 'pointer' }}>
-              <option value="">Barcha joylashuvlar</option>
-              {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-            </select>
-            <select value={filters.responsiblePersonId} onChange={(e) => setFilters({...filters, responsiblePersonId: e.target.value})}
-              style={{ flex: '1 1 200px', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '14px', color: '#334155', outline: 'none', cursor: 'pointer' }}>
-              <option value="">Barcha mas'ullar</option>
-              {persons.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
-            </select>
-            <select value={filters.manufacturerId} onChange={(e) => setFilters({...filters, manufacturerId: e.target.value})}
-              style={{ flex: '1 1 200px', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', fontSize: '14px', color: '#334155', outline: 'none', cursor: 'pointer' }}>
-              <option value="">Barcha ishlab chiqaruvchilar</option>
-              {manufacturers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-            </select>
+            <CustomSelect 
+              value={filters.categoryId} 
+              onChange={(val) => setFilters({...filters, categoryId: val})}
+              defaultLabel="Barcha toifalar"
+              options={categories.map(c => ({ value: c.id, label: c.nameUz }))}
+            />
+            <CustomSelect 
+              value={filters.statusId} 
+              onChange={(val) => setFilters({...filters, statusId: val})}
+              defaultLabel="Barcha statuslar"
+              options={statuses.map(s => ({ value: s.id, label: s.nameUz }))}
+            />
+            <CustomSelect 
+              value={filters.locationId} 
+              onChange={(val) => setFilters({...filters, locationId: val})}
+              defaultLabel="Barcha joylashuvlar"
+              options={locations.map(l => ({ value: l.id, label: l.name }))}
+            />
+            <CustomSelect 
+              value={filters.responsiblePersonId} 
+              onChange={(val) => setFilters({...filters, responsiblePersonId: val})}
+              defaultLabel="Barcha mas'ullar"
+              options={persons.map(p => ({ value: p.id, label: p.fullName }))}
+            />
+            <CustomSelect 
+              value={filters.manufacturerId} 
+              onChange={(val) => setFilters({...filters, manufacturerId: val})}
+              defaultLabel="Barcha ishlab chiqaruvchilar"
+              options={manufacturers.map(m => ({ value: m.id, label: m.name }))}
+            />
+            
             {activeFilterCount > 0 && (
-              <button onClick={clearFilters} style={{ flex: '1 1 100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#fef2f2', border: '1px dashed #fecdd3', color: '#e11d48', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+              <button onClick={clearFilters} style={{ flex: '1 1 100%', padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#fef2f2', border: '1px dashed #fecdd3', color: '#e11d48', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-red-50">
                 <HiOutlineXMark style={{ fontSize: '18px' }} /> Filtrlarni tozalash
               </button>
             )}
