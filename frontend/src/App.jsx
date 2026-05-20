@@ -10,6 +10,7 @@ import EquipmentDetailPage from './pages/equipment/EquipmentDetailPage';
 import ReferencesPage from './pages/references/ReferencesPage';
 import UsersPage from './pages/dashboard/UsersPage';
 import PprTaskListPage from './pages/ppr/PprTaskListPage';
+import PprTaskDetailPage from './pages/ppr/PprTaskDetailPage';
 import WarehousePage from './pages/warehouse/WarehousePage';
 import SparePartsPage from './pages/warehouse/SparePartsPage';
 import ReportsPage from './pages/reports/ReportsPage';
@@ -38,6 +39,7 @@ export default function App() {
 
             {/* PPR (TZ 3.1-3.12) */}
             <Route path="/ppr" element={<PprTaskListPage />} />
+            <Route path="/ppr/:id" element={<PprTaskDetailPage />} />
 
             {/* Arizalar (TZ 3.8) */}
             <Route path="/requests" element={<UserRequestsPage />} />

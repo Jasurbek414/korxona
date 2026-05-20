@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # ====== PostgreSQL ======
+  postgres:
+    image: postgres:15-alpine
+    container_name: boshliq-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: equipment_db
+      POSTGRES_USER: equipment_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-equipment_secret_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U equipment_user -d equipment_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ====== Backend (Spring Boot) ======
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: boshliq-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/equipment_db
+      SPRING_DATASOURCE_USERNAME: equipment_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-equipment_secret_2026}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APP_JWT_SECRET: ${JWT_SECRET:-my-super-secret-jwt-key-256bit-long-enough}
+      APP_JWT_EXPIRATION: 1800000
+      APP_JWT_REFRESH_EXPIRATION: 604800000
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    volumes:
+      - uploads_data:/app/uploads
+      - backups_data:/app/backups
+    ports:
+      - "8080:8080"
+
+  # ====== Frontend (Nginx) ======
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: boshliq-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  postgres_data:
+  uploads_data:
+  backups_data:
