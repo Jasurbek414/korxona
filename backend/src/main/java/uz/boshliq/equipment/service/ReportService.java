@@ -14,6 +14,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * TZ 5.1: 5 turdagi hisobot.
  * TZ 5.2: Dashboard KPI va statistika.
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ReportService {
 
     private final EquipmentRepository equipmentRepository;

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.boshliq.equipment.dto.PageResponse;
 import uz.boshliq.equipment.entity.AuditLog;
 import uz.boshliq.equipment.entity.User;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuditLogService {
 
     private final AuditLogRepository repository;
@@ -26,6 +28,7 @@ public class AuditLogService {
     /**
      * Harakat qayd etish — tizim ichidan avtomatik chaqiriladi.
      */
+    @Transactional
     public void log(User user, String action, String entityType, Long entityId,
                     String oldValue, String newValue, String ipAddress, String description) {
         AuditLog auditLog = AuditLog.builder()

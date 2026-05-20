@@ -27,6 +27,7 @@ public class SparePartService {
     private final MeasurementUnitRepository unitRepository;
     private final WarehouseStockRepository stockRepository;
 
+    @Transactional(readOnly = true)
     public List<SparePartDto> getAll() {
         return sparePartRepository.findAll().stream()
                 .filter(sp -> !sp.getIsDeleted())
@@ -34,10 +35,12 @@ public class SparePartService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public SparePartDto getById(Long id) {
         return toDto(findOrThrow(id));
     }
 
+    @Transactional(readOnly = true)
     public SparePartDto getByCode(String code) {
         return toDto(sparePartRepository.findByCodeAndIsDeletedFalse(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Kod topilmadi: " + code)));
