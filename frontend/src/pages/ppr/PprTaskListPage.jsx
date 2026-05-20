@@ -1,21 +1,106 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { pprService, referenceService } from '../../services/dataService';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import toast from 'react-hot-toast';
+import { HiOutlineWrenchScrewdriver, HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 
 const PRIORITIES = [
-  { value: 'LOW', label: 'Past', color: 'bg-slate-100 text-slate-700' },
-  { value: 'MEDIUM', label: "O'rta", color: 'bg-blue-100 text-blue-700' },
-  { value: 'HIGH', label: 'Yuqori', color: 'bg-orange-100 text-orange-700' },
-  { value: 'CRITICAL', label: 'Kritik', color: 'bg-red-100 text-red-700' },
+  { value: 'LOW', label: 'Past', color: '#64748b', bg: '#f1f5f9' },
+  { value: 'MEDIUM', label: "O'rta", color: '#0284c7', bg: '#e0f2fe' },
+  { value: 'HIGH', label: 'Yuqori', color: '#ea580c', bg: '#ffedd5' },
+  { value: 'CRITICAL', label: 'Kritik', color: '#e11d48', bg: '#ffe4e6' },
 ];
 const STATUSES = [
-  { value: 'SCHEDULED', label: 'Rejalashtirilgan', color: 'bg-blue-100 text-blue-700', icon: '🔵' },
-  { value: 'IN_PROGRESS', label: 'Jarayonda', color: 'bg-yellow-100 text-yellow-700', icon: '🟡' },
-  { value: 'COMPLETED', label: 'Bajarilgan', color: 'bg-green-100 text-green-700', icon: '🟢' },
-  { value: 'APPROVED', label: 'Tasdiqlangan', color: 'bg-emerald-100 text-emerald-800', icon: '✅' },
+  { value: 'SCHEDULED', label: 'Rejalashtirilgan', color: '#0284c7', bg: '#e0f2fe', icon: '🔵' },
+  { value: 'IN_PROGRESS', label: 'Jarayonda', color: '#ca8a04', bg: '#fef9c3', icon: '🟡' },
+  { value: 'COMPLETED', label: 'Bajarilgan', color: '#16a34a', bg: '#dcfce3', icon: '🟢' },
+  { value: 'APPROVED', label: 'Tasdiqlangan', color: '#059669', bg: '#d1fae5', icon: '✅' },
 ];
+
+// --- CUSTOM SELECT COMPONENT ---
+const CustomSelect = ({ value, onChange, options, defaultLabel }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  const selectedOption = options.find(o => o.value == value);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          width: '100%', padding: '14px 16px', borderRadius: '12px', 
+          border: isOpen ? '1px solid #3b82f6' : '1px solid #cbd5e1', 
+          background: '#fff', fontSize: '15px', 
+          color: value ? '#0f172a' : '#64748b', 
+          outline: 'none', cursor: 'pointer', 
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          boxShadow: isOpen ? '0 0 0 4px rgba(59,130,246,0.1)' : 'none', 
+          transition: 'all 0.2s',
+          fontWeight: 500,
+          boxSizing: 'border-box'
+        }}
+      >
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {selectedOption ? selectedOption.label : defaultLabel}
+        </span>
+        <svg style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', flexShrink: 0, marginLeft: '8px' }} width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+      
+      {isOpen && (
+        <div style={{ 
+          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '8px', 
+          background: '#fff', border: '1px solid #e2e8f0', borderRadius: '16px', 
+          boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)', 
+          zIndex: 50, maxHeight: '280px', overflowY: 'auto', padding: '8px' 
+        }}>
+          <div 
+            onClick={() => { onChange(''); setIsOpen(false); }}
+            style={{ 
+              padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+              color: value === '' ? '#2563eb' : '#475569', 
+              background: value === '' ? '#eff6ff' : 'transparent', 
+              fontWeight: value === '' ? 700 : 500,
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={(e) => { if(value !== '') e.target.style.background = '#f8fafc' }}
+            onMouseLeave={(e) => { if(value !== '') e.target.style.background = 'transparent' }}
+          >
+            {defaultLabel}
+          </div>
+          {options.map((opt) => (
+            <div 
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setIsOpen(false); }}
+              style={{ 
+                padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', 
+                color: value == opt.value ? '#2563eb' : '#475569', 
+                background: value == opt.value ? '#eff6ff' : 'transparent', 
+                fontWeight: value == opt.value ? 700 : 500, marginTop: '4px',
+                transition: 'background 0.2s'
+              }}
+              onMouseEnter={(e) => { if(value != opt.value) e.target.style.background = '#f8fafc' }}
+              onMouseLeave={(e) => { if(value != opt.value) e.target.style.background = 'transparent' }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+// --- END CUSTOM SELECT COMPONENT ---
 
 export default function PprTaskListPage() {
   const { user } = useAuthContext();
@@ -95,109 +180,143 @@ export default function PprTaskListPage() {
   const getPriority = (val) => PRIORITIES.find(p => p.value === val) || PRIORITIES[1];
   const getStatus = (val) => STATUSES.find(s => s.value === val) || STATUSES[0];
 
+  const inputStyle = { width: '100%', padding: '14px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '15px', fontWeight: 500, color: '#334155', outline: 'none', transition: 'all 0.3s', boxSizing: 'border-box' };
+
   return (
-    <div className="animate-fade-in">
+    <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">PPR Vazifalari</h1>
-          <p className="text-sm text-slate-500 mt-1">Jami: {totalElements} ta vazifa</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(16,185,129,0.3)' }}>
+            <HiOutlineWrenchScrewdriver style={{ color: '#fff', fontSize: '28px' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', tracking: 'tight' }}>PPR Vazifalari</h1>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Jami vazifalar: <span style={{ color: '#10b981', fontWeight: 800 }}>{totalElements} ta</span>
+            </p>
+          </div>
         </div>
         {(isAdmin || user?.role === 'OPERATOR') && (
           <button onClick={() => setShowCreateModal(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-all">
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg, #2563eb, #3b82f6)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', transition: 'all 0.3s' }}
+            className="hover:-translate-y-1 hover:shadow-lg"
+          >
             + Yangi vazifa
           </button>
         )}
       </div>
 
       {/* Filtrlar */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <select value={filterStatus} onChange={e => { setFilterStatus(e.target.value); setPage(0); }}
-            className="input-field">
-            <option value="">Barcha statuslar</option>
-            {STATUSES.map(s => <option key={s.value} value={s.value}>{s.icon} {s.label}</option>)}
-          </select>
-          <select value={filterPriority} onChange={e => { setFilterPriority(e.target.value); setPage(0); }}
-            className="input-field">
-            <option value="">Barcha ustuvorliklar</option>
-            {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-          </select>
-          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }}
-            className="input-field" placeholder="Boshlanish" />
-          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }}
-            className="input-field" placeholder="Tugash" />
+      <div style={{ background: '#fff', borderRadius: '24px', padding: '24px', marginBottom: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          <div>
+            <CustomSelect 
+              value={filterStatus} onChange={val => { setFilterStatus(val); setPage(0); }}
+              options={STATUSES.map(s => ({ value: s.value, label: `${s.icon} ${s.label}` }))} defaultLabel="Barcha statuslar"
+            />
+          </div>
+          <div>
+            <CustomSelect 
+              value={filterPriority} onChange={val => { setFilterPriority(val); setPage(0); }}
+              options={PRIORITIES.map(p => ({ value: p.value, label: p.label }))} defaultLabel="Barcha ustuvorliklar"
+            />
+          </div>
+          <div>
+            <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }}
+              style={inputStyle} 
+              onFocus={e => { e.target.style.borderColor='#3b82f6'; }} 
+              onBlur={e => { e.target.style.borderColor='#cbd5e1'; }} />
+          </div>
+          <div>
+            <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }}
+              style={inputStyle} 
+              onFocus={e => { e.target.style.borderColor='#3b82f6'; }} 
+              onBlur={e => { e.target.style.borderColor='#cbd5e1'; }} />
+          </div>
         </div>
       </div>
 
       {/* Jadval */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        {loading ? (
-          <div className="p-12 text-center text-slate-400">Yuklanmoqda...</div>
-        ) : tasks.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">Vazifalar topilmadi</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200">
+      <div style={{ background: '#fff', borderRadius: '24px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)' }}>
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', whiteSpace: 'nowrap' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Raqam</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Uskuna</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Turi</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Sana</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ustuvorlik</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mas'ul</th>
+                <th style={{ padding: '16px 24px', fontSize: '13px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>Amallar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Raqam</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Uskuna</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Turi</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Sana</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Ustuvorlik</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Status</th>
-                  <th className="px-4 py-3 text-left font-semibold text-slate-600">Mas'ul</th>
-                  <th className="px-4 py-3 text-center font-semibold text-slate-600">Amallar</th>
+                  <td colSpan={8} style={{ padding: '64px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                      <div className="animate-spin" style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%' }} />
+                      <span style={{ color: '#94a3b8', fontSize: '14px', fontWeight: 500 }}>Vazifalar yuklanmoqda...</span>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {tasks.map(task => {
+              ) : tasks.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: '64px', textAlign: 'center' }}>
+                    <p style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 500 }}>Vazifalar topilmadi</p>
+                  </td>
+                </tr>
+              ) : (
+                tasks.map(task => {
                   const priority = getPriority(task.priority);
                   const status = getStatus(task.status);
                   return (
-                    <tr key={task.id} className={`hover:bg-slate-50 transition ${task.isOverdue ? 'bg-red-50/50' : ''}`}>
-                      <td className="px-4 py-3 font-mono text-xs font-semibold text-blue-600">{task.taskNumber}</td>
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-slate-800">{task.equipmentName}</div>
-                        <div className="text-xs text-slate-400">{task.equipmentInventoryNumber}</div>
+                    <tr key={task.id} className="hover:bg-slate-50 transition-colors" style={{ borderBottom: '1px solid #f1f5f9', backgroundColor: task.isOverdue ? '#fff1f2' : 'transparent' }}>
+                      <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 700, color: '#2563eb', fontFamily: 'monospace' }}>{task.taskNumber}</td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b' }}>{task.equipmentName}</div>
+                        <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600 }}>{task.equipmentInventoryNumber}</div>
                       </td>
-                      <td className="px-4 py-3 text-slate-600">{task.pprTypeName}</td>
-                      <td className="px-4 py-3">
-                        <span className={task.isOverdue ? 'text-red-600 font-semibold' : 'text-slate-700'}>
+                      <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: '#475569' }}>{task.pprTypeName}</td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: task.isOverdue ? '#e11d48' : '#334155' }}>
                           {task.scheduledDate}
-                        </span>
+                        </div>
                         {task.isOverdue && (
-                          <div className="text-xs text-red-500 font-medium">{task.overdueDays} kun kechikkan</div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#ef4444', marginTop: '2px' }}>{task.overdueDays} kun kechikkan</div>
                         )}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priority.color}`}>{priority.label}</span>
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '13px', fontWeight: 700, backgroundColor: priority.bg, color: priority.color }}>
+                          {priority.label}
+                        </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${status.color}`}>
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '13px', fontWeight: 700, backgroundColor: status.bg, color: status.color, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                           {status.icon} {status.label}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 text-xs">{task.assignedToName || '—'}</td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
+                      <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 500, color: '#64748b' }}>{task.assignedToName || '—'}</td>
+                      <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           {task.status === 'SCHEDULED' && (
                             <button onClick={() => handleStatusChange(task.id, 'IN_PROGRESS')}
-                              className="px-2 py-1 text-xs bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition" title="Boshlash">
+                              style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: '#fef9c3', color: '#a16207', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-yellow-200">
                               ▶ Boshlash
                             </button>
                           )}
                           {task.status === 'IN_PROGRESS' && (
                             <button onClick={() => handleStatusChange(task.id, 'COMPLETED')}
-                              className="px-2 py-1 text-xs bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition" title="Yakunlash">
+                              style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: '#dcfce3', color: '#15803d', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-green-200">
                               ✓ Yakunlash
                             </button>
                           )}
                           {task.status === 'COMPLETED' && isAdmin && (
                             <button onClick={() => handleStatusChange(task.id, 'APPROVED')}
-                              className="px-2 py-1 text-xs bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition" title="Tasdiqlash">
+                              style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', background: '#d1fae5', color: '#047857', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-emerald-200">
                               ✅ Tasdiqlash
                             </button>
                           )}
@@ -205,21 +324,36 @@ export default function PprTaskListPage() {
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Paginatsiya */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-            <p className="text-sm text-slate-500">{page + 1} / {totalPages}</p>
-            <div className="flex gap-2">
-              <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-                className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-40 hover:bg-slate-50 transition">← Oldingi</button>
-              <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
-                className="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-40 hover:bg-slate-50 transition">Keyingi →</button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc' }}>
+            <p style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8', margin: 0 }}>
+              Ko'rsatilmoqda: {page * 20 + 1}–{Math.min((page + 1) * 20, totalElements)} / {totalElements} ta
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => setPage(Math.max(0, page - 1))}
+                disabled={page === 0}
+                style={{ padding: '8px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#475569', cursor: page === 0 ? 'not-allowed' : 'pointer', opacity: page === 0 ? 0.5 : 1 }}
+              >
+                <HiOutlineChevronLeft style={{ fontSize: '18px' }} />
+              </button>
+              <span style={{ padding: '0 12px', fontSize: '14px', fontWeight: 700, color: '#334155' }}>
+                {page + 1} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+                disabled={page >= totalPages - 1}
+                style={{ padding: '8px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#475569', cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer', opacity: page >= totalPages - 1 ? 0.5 : 1 }}
+              >
+                <HiOutlineChevronRight style={{ fontSize: '18px' }} />
+              </button>
             </div>
           </div>
         )}
@@ -227,66 +361,71 @@ export default function PprTaskListPage() {
 
       {/* Yangi vazifa modali */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 animate-fade-in">
-            <h2 className="text-xl font-bold text-slate-800 mb-4">Yangi PPR vazifasi</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Uskuna ID *</label>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="animate-fade-in" style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '500px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', margin: '16px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Yangi PPR vazifasi</h2>
+            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Uskuna ID *</label>
                   <input type="number" required value={form.equipmentId}
                     onChange={e => setForm({...form, equipmentId: e.target.value})}
-                    className="input-field" placeholder="Uskuna ID" />
+                    style={inputStyle} placeholder="ID raqami" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">PPR turi *</label>
-                  <select required value={form.pprTypeId}
-                    onChange={e => setForm({...form, pprTypeId: e.target.value})}
-                    className="input-field">
-                    <option value="">Tanlang</option>
-                    {pprTypes.map(t => <option key={t.id} value={t.id}>{t.nameUz}</option>)}
-                  </select>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>PPR turi *</label>
+                  <CustomSelect 
+                    value={form.pprTypeId} onChange={val => setForm({...form, pprTypeId: val})}
+                    options={pprTypes.map(t => ({ value: t.id, label: t.nameUz }))} defaultLabel="Tanlang"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Sana *</label>
+              </div>
+
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Sana *</label>
                   <input type="date" required value={form.scheduledDate}
                     onChange={e => setForm({...form, scheduledDate: e.target.value})}
-                    className="input-field" />
+                    style={inputStyle} />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-600 mb-1">Ustuvorlik</label>
-                  <select value={form.priority}
-                    onChange={e => setForm({...form, priority: e.target.value})}
-                    className="input-field">
-                    {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                  </select>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Ustuvorlik</label>
+                  <CustomSelect 
+                    value={form.priority} onChange={val => setForm({...form, priority: val})}
+                    options={PRIORITIES.map(p => ({ value: p.value, label: p.label }))} defaultLabel="Tanlang"
+                  />
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1">Mas'ul shaxs</label>
-                <select value={form.assignedToId}
-                  onChange={e => setForm({...form, assignedToId: e.target.value})}
-                  className="input-field">
-                  <option value="">Tanlanmagan</option>
-                  {persons.map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
-                </select>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Mas'ul shaxs</label>
+                <CustomSelect 
+                  value={form.assignedToId} onChange={val => setForm({...form, assignedToId: val})}
+                  options={persons.map(p => ({ value: p.id, label: p.fullName }))} defaultLabel="Tanlanmagan"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1">Tavsif</label>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>Tavsif</label>
                 <textarea value={form.description} rows={3}
                   onChange={e => setForm({...form, description: e.target.value})}
-                  className="input-field" placeholder="Qo'shimcha ma'lumot..." />
+                  style={{ ...inputStyle, resize: 'none', height: '80px' }} placeholder="Qo'shimcha ma'lumot..." />
               </div>
-              <div className="flex gap-3 pt-2">
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
                 <button type="submit"
-                  className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium hover:shadow-lg transition-all">
+                  style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #2563eb, #3b82f6)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)' }}
+                  className="hover:-translate-y-1 transition-all hover:shadow-lg">
                   Yaratish
                 </button>
                 <button type="button" onClick={() => setShowCreateModal(false)}
-                  className="px-6 py-2.5 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition">
+                  style={{ padding: '14px 24px', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }}
+                  className="hover:bg-slate-100 transition-colors">
                   Bekor qilish
                 </button>
               </div>
+
             </form>
           </div>
         </div>
