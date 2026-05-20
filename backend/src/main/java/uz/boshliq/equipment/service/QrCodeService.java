@@ -86,7 +86,7 @@ public class QrCodeService {
      * QR-kod rasmini byte[] sifatida olish (yuklab olish uchun).
      */
     public byte[] getQrCodeImage(Long equipmentId) {
-        Equipment equipment = equipmentRepository.findByIdAndIsDeletedFalse(equipmentId)
+        equipmentRepository.findByIdAndIsDeletedFalse(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Uskuna topilmadi: " + equipmentId));
 
         String qrContent = String.format("{\"type\":\"equipment\",\"id\":%d}", equipmentId);

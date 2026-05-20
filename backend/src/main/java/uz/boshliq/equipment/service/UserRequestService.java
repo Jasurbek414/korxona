@@ -7,12 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uz.boshliq.equipment.entity.*;
-import uz.boshliq.equipment.exception.BadRequestException;
 import uz.boshliq.equipment.exception.ResourceNotFoundException;
 import uz.boshliq.equipment.repository.*;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * TZ 3.8: Foydalanuvchi arizalari xizmati.

@@ -41,7 +41,6 @@ public class PprTaskService {
     private final ServiceIntervalRepository serviceIntervalRepository;
     private final ResponsiblePersonRepository responsiblePersonRepository;
     private final TaskRescheduleHistoryRepository rescheduleRepository;
-    private final TaskChecklistItemRepository checklistRepository;
 
     // ======================== CRUD ========================
 

@@ -9,7 +9,6 @@ import uz.boshliq.equipment.dto.auth.AuthResponse;
 import uz.boshliq.equipment.dto.auth.LoginRequest;
 import uz.boshliq.equipment.dto.auth.RefreshTokenRequest;
 import uz.boshliq.equipment.entity.User;
-import uz.boshliq.equipment.exception.BadRequestException;
 import uz.boshliq.equipment.exception.UnauthorizedException;
 import uz.boshliq.equipment.repository.UserRepository;
 import uz.boshliq.equipment.security.JwtService;

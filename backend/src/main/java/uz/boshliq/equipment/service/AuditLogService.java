@@ -11,7 +11,6 @@ import uz.boshliq.equipment.entity.AuditLog;
 import uz.boshliq.equipment.entity.User;
 import uz.boshliq.equipment.repository.AuditLogRepository;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
