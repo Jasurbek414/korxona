@@ -7,7 +7,7 @@ import {
   HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowRightOnRectangle,
   HiOutlineCog6Tooth, HiOutlineWrenchScrewdriver, HiOutlineCube,
   HiOutlineChartBarSquare, HiOutlineArchiveBox, HiOutlineDocumentArrowUp,
-  HiOutlinePencilSquare, HiOutlineSparkles
+  HiOutlinePencilSquare,
 } from 'react-icons/hi2';
 
 export default function Sidebar() {
@@ -38,29 +38,50 @@ export default function Sidebar() {
     navigate('/login', { replace: true });
   };
 
+  const linkStyle = (isActive) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+    padding: '10px 16px',
+    borderRadius: '14px',
+    fontSize: '14px',
+    fontWeight: 500,
+    transition: 'all 0.25s ease',
+    position: 'relative',
+    overflow: 'hidden',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    color: isActive ? '#ffffff' : '#94a3b8',
+    background: isActive ? 'rgba(37,99,235,0.08)' : 'transparent',
+  });
+
+  const indicatorStyle = {
+    position: 'absolute',
+    left: 0,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: '3px',
+    height: '28px',
+    borderRadius: '0 6px 6px 0',
+    background: '#3b82f6',
+    boxShadow: '0 0 12px rgba(59,130,246,0.6)',
+  };
+
+  const iconStyle = (isActive) => ({
+    fontSize: '20px',
+    transition: 'all 0.25s ease',
+    color: isActive ? '#3b82f6' : '#64748b',
+    filter: isActive ? 'drop-shadow(0 0 6px rgba(59,130,246,0.5))' : 'none',
+    flexShrink: 0,
+  });
+
   const renderLink = (item) => (
-    <NavLink 
-      key={item.path} 
-      to={item.path} 
-      className={({ isActive }) => 
-        `group relative flex items-center gap-4 px-4 py-3 rounded-xl text-[14.5px] font-semibold transition-all duration-300 overflow-hidden outline-none ${
-          isActive 
-            ? 'text-white shadow-[0_0_20px_rgba(59,130,246,0.15)]' 
-            : 'text-slate-400 hover:text-white hover:bg-white/[0.03] hover:translate-x-1'
-        }`
-      }
-    >
+    <NavLink key={item.path} to={item.path} style={({ isActive }) => linkStyle(isActive)}>
       {({ isActive }) => (
         <>
-          {/* Active Background Gradient */}
-          <div className={`absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-600/5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
-          
-          {/* Active Indicator Line */}
-          <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[4px] h-[24px] bg-blue-500 rounded-r-full shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all duration-300 ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'}`} />
-          
-          <item.icon className={`text-[22px] relative z-10 transition-all duration-300 flex-shrink-0 ${isActive ? 'text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] scale-110' : 'text-slate-500 group-hover:text-slate-300'}`} />
-          
-          <span className="relative z-10 tracking-wide">{item.label}</span>
+          {isActive && <div style={indicatorStyle} />}
+          <item.icon style={iconStyle(isActive)} />
+          <span>{item.label}</span>
         </>
       )}
     </NavLink>
@@ -68,40 +89,34 @@ export default function Sidebar() {
 
   return (
     <aside style={{
-      position: 'fixed', top: 0, left: 0, height: '100vh', width: '280px',
-      background: 'linear-gradient(180deg, #020617 0%, #0f172a 100%)',
-      borderRight: '1px solid rgba(255,255,255,0.03)',
+      position: 'fixed', top: 0, left: 0, height: '100vh', width: '256px',
+      background: '#0B1120',
+      borderRight: '1px solid rgba(255,255,255,0.04)',
       display: 'flex', flexDirection: 'column', zIndex: 40,
-      boxShadow: '4px 0 30px rgba(0,0,0,0.4)',
+      boxShadow: '4px 0 24px rgba(0,0,0,0.3)',
     }}>
       {/* Logo + Language */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '24px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', gap: '12px',
-        background: 'rgba(2,6,23,0.5)',
+        padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', gap: '12px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, flex: 1 }}>
-          <div className="relative group">
-            <div className="absolute inset-0 bg-blue-500 rounded-[14px] blur-md opacity-40 group-hover:opacity-70 transition-opacity duration-500" />
-            <div style={{
-              width: '42px', height: '42px', flexShrink: 0, borderRadius: '14px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              position: 'relative', zIndex: 10,
-              boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)'
-            }}>
-              <HiOutlineSparkles style={{ color: '#fff', fontSize: '22px' }} />
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+          <div style={{
+            width: '36px', height: '36px', flexShrink: 0, borderRadius: '12px',
+            background: 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 15px rgba(37,99,235,0.4)',
+          }}>
+            <HiOutlineComputerDesktop style={{ color: '#fff', fontSize: '18px' }} />
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
             <h2 style={{
-              color: '#fff', fontWeight: 900, fontSize: '16px', letterSpacing: '0.15em',
-              lineHeight: 1.1, margin: '0 0 4px 0',
+              color: '#fff', fontWeight: 900, fontSize: '13px', letterSpacing: '0.2em',
+              lineHeight: 1, margin: '0 0 4px 0',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              textShadow: '0 2px 10px rgba(255,255,255,0.1)'
             }}>BOSHLIQ</h2>
             <p style={{
-              color: '#94a3b8', fontSize: '10px', fontWeight: 600, letterSpacing: '0.12em',
+              color: '#64748b', fontSize: '9px', fontWeight: 600, letterSpacing: '0.1em',
               textTransform: 'uppercase', margin: 0,
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>{t('auth.loginSubtitle')}</p>
@@ -109,13 +124,12 @@ export default function Sidebar() {
         </div>
         <button
           onClick={() => changeLanguage(i18n.language === 'uz' ? 'ru' : 'uz')}
-          className="hover:bg-white/10 hover:text-white"
           style={{
-            width: '36px', height: '36px', flexShrink: 0, borderRadius: '10px',
+            width: '32px', height: '32px', flexShrink: 0, borderRadius: '8px',
             background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-            color: '#cbd5e1', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em',
+            color: '#cbd5e1', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.3s',
           }}
           title={i18n.language === 'uz' ? "Русский" : "O'zbekcha"}
         >
@@ -125,26 +139,26 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav style={{
-        flex: 1, padding: '24px 20px', overflowY: 'auto',
+        flex: 1, padding: '20px 16px', overflowY: 'auto',
         msOverflowStyle: 'none', scrollbarWidth: 'none',
       }}>
         <p style={{
-          padding: '0 16px', fontSize: '11px', fontWeight: 800,
-          color: 'rgba(148,163,184,0.5)', textTransform: 'uppercase',
-          letterSpacing: '0.2em', marginBottom: '12px',
+          padding: '8px 16px', fontSize: '10px', fontWeight: 700,
+          color: 'rgba(100,116,139,0.6)', textTransform: 'uppercase',
+          letterSpacing: '0.15em', marginBottom: '8px',
         }}>{t('sidebar.main')}</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           {menuItems.map(renderLink)}
         </div>
 
         {isAdmin && (
-          <div style={{ paddingTop: '24px', marginTop: '24px', borderTop: '1px dashed rgba(255,255,255,0.05)' }}>
+          <div style={{ paddingTop: '20px', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
             <p style={{
-              padding: '0 16px', fontSize: '11px', fontWeight: 800,
-              color: 'rgba(148,163,184,0.5)', textTransform: 'uppercase',
-              letterSpacing: '0.2em', marginBottom: '12px',
+              padding: '8px 16px', fontSize: '10px', fontWeight: 700,
+              color: 'rgba(100,116,139,0.6)', textTransform: 'uppercase',
+              letterSpacing: '0.15em', marginBottom: '8px',
             }}>Administrator</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {adminItems.map(renderLink)}
             </div>
           </div>
@@ -152,47 +166,41 @@ export default function Sidebar() {
       </nav>
 
       {/* Profile */}
-      <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.04)', background: 'rgba(2,6,23,0.3)' }}>
-        <div className="group" style={{
-          display: 'flex', alignItems: 'center', gap: '14px',
-          padding: '14px', borderRadius: '20px',
-          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
-          transition: 'all 0.3s', cursor: 'pointer'
+      <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          padding: '12px', borderRadius: '16px',
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)',
         }}>
-          <div className="relative">
-            <div className="absolute inset-0 bg-indigo-500 rounded-full blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-300" />
-            <div style={{
-              width: '44px', height: '44px', flexShrink: 0, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontWeight: 800, fontSize: '16px', position: 'relative', zIndex: 10,
-              boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)'
-            }}>
-              {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
-            </div>
-            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-[#0B1120] rounded-full z-20" />
+          <div style={{
+            width: '40px', height: '40px', flexShrink: 0, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 700, fontSize: '14px',
+            boxShadow: '0 0 15px rgba(99,102,241,0.3)',
+          }}>
+            {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{
-              color: '#f8fafc', fontSize: '14px', fontWeight: 700, margin: 0,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2,
+              color: '#e2e8f0', fontSize: '13px', fontWeight: 700, margin: 0,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3,
             }}>{user?.fullName}</p>
-            <p style={{ color: '#94a3b8', fontSize: '11.5px', fontWeight: 500, margin: '3px 0 0 0', letterSpacing: '0.02em' }}>
+            <p style={{ color: '#64748b', fontSize: '11px', fontWeight: 500, margin: '2px 0 0 0' }}>
               {user?.role === 'ADMIN' ? 'Administrator' : user?.role}
             </p>
           </div>
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLogout(); }}
-            className="hover:bg-rose-500/10 hover:text-rose-400 text-slate-400"
             style={{
-              width: '36px', height: '36px', flexShrink: 0, borderRadius: '12px',
-              background: 'transparent', border: 'none',
+              width: '32px', height: '32px', flexShrink: 0, borderRadius: '10px',
+              background: 'transparent', border: 'none', color: '#64748b',
               cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'all 0.3s',
             }}
             title="Chiqish"
           >
-            <HiOutlineArrowRightOnRectangle style={{ fontSize: '20px' }} />
+            <HiOutlineArrowRightOnRectangle style={{ fontSize: '18px' }} />
           </button>
         </div>
       </div>
