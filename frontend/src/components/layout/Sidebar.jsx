@@ -38,37 +38,99 @@ export default function Sidebar() {
     navigate('/login', { replace: true });
   };
 
-  const linkClass = ({ isActive }) =>
-    `flex items-center gap-3.5 px-4 py-3 rounded-[14px] text-[14px] font-medium transition-all duration-300 group relative overflow-hidden ${
-      isActive
-        ? 'text-white bg-blue-600/10'
-        : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
-    }`;
+  const linkStyle = (isActive) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+    padding: '10px 16px',
+    borderRadius: '14px',
+    fontSize: '14px',
+    fontWeight: 500,
+    transition: 'all 0.25s ease',
+    position: 'relative',
+    overflow: 'hidden',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    color: isActive ? '#ffffff' : '#94a3b8',
+    background: isActive ? 'rgba(37,99,235,0.08)' : 'transparent',
+  });
 
-  const iconClass = (isActive) => 
-    `text-[20px] transition-all duration-300 ${
-      isActive 
-        ? 'text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]' 
-        : 'text-slate-500 group-hover:text-slate-300'
-    }`;
+  const indicatorStyle = {
+    position: 'absolute',
+    left: 0,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: '3px',
+    height: '28px',
+    borderRadius: '0 6px 6px 0',
+    background: '#3b82f6',
+    boxShadow: '0 0 12px rgba(59,130,246,0.6)',
+  };
+
+  const iconStyle = (isActive) => ({
+    fontSize: '20px',
+    transition: 'all 0.25s ease',
+    color: isActive ? '#3b82f6' : '#64748b',
+    filter: isActive ? 'drop-shadow(0 0 6px rgba(59,130,246,0.5))' : 'none',
+    flexShrink: 0,
+  });
+
+  const renderLink = (item) => (
+    <NavLink key={item.path} to={item.path} style={({ isActive }) => linkStyle(isActive)}>
+      {({ isActive }) => (
+        <>
+          {isActive && <div style={indicatorStyle} />}
+          <item.icon style={iconStyle(isActive)} />
+          <span>{item.label}</span>
+        </>
+      )}
+    </NavLink>
+  );
 
   return (
-    <aside className="fixed top-0 left-0 h-full w-64 bg-[#0B1120] border-r border-white/[0.04] flex flex-col z-40 shadow-2xl">
-      {/* Logo Area */}
-      <div className="flex items-center justify-between px-6 py-6 border-b border-white/[0.04] gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 shrink-0 bg-gradient-to-b from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-            <HiOutlineComputerDesktop className="text-white text-[18px]" />
+    <aside style={{
+      position: 'fixed', top: 0, left: 0, height: '100vh', width: '256px',
+      background: '#0B1120',
+      borderRight: '1px solid rgba(255,255,255,0.04)',
+      display: 'flex', flexDirection: 'column', zIndex: 40,
+      boxShadow: '4px 0 24px rgba(0,0,0,0.3)',
+    }}>
+      {/* Logo + Language */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)', gap: '12px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+          <div style={{
+            width: '36px', height: '36px', flexShrink: 0, borderRadius: '12px',
+            background: 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 15px rgba(37,99,235,0.4)',
+          }}>
+            <HiOutlineComputerDesktop style={{ color: '#fff', fontSize: '18px' }} />
           </div>
-          <div className="min-w-0 flex-1 pt-0.5">
-            <h2 className="text-white font-black text-[13px] tracking-[0.2em] leading-none mb-1 truncate">BOSHLIQ</h2>
-            <p className="text-slate-500 text-[9px] font-semibold tracking-wider uppercase truncate">{t('auth.loginSubtitle')}</p>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h2 style={{
+              color: '#fff', fontWeight: 900, fontSize: '13px', letterSpacing: '0.2em',
+              lineHeight: 1, margin: '0 0 4px 0',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>BOSHLIQ</h2>
+            <p style={{
+              color: '#64748b', fontSize: '9px', fontWeight: 600, letterSpacing: '0.1em',
+              textTransform: 'uppercase', margin: 0,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{t('auth.loginSubtitle')}</p>
           </div>
         </div>
-        {/* Language Switcher */}
-        <button 
+        <button
           onClick={() => changeLanguage(i18n.language === 'uz' ? 'ru' : 'uz')}
-          className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.05] text-[10px] font-bold tracking-widest text-slate-300 hover:text-white transition-all duration-300"
+          style={{
+            width: '32px', height: '32px', flexShrink: 0, borderRadius: '8px',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+            color: '#cbd5e1', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.3s',
+          }}
           title={i18n.language === 'uz' ? "Русский" : "O'zbekcha"}
         >
           {i18n.language === 'uz' ? 'UZ' : 'RU'}
@@ -76,58 +138,69 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto scrollbar-hide">
-        <p className="px-4 py-2 text-[10px] font-bold text-slate-500/70 uppercase tracking-[0.15em] mb-2">{t('sidebar.main')}</p>
-        {menuItems.map((item) => (
-          <NavLink key={item.path} to={item.path} className={linkClass}>
-            {({ isActive }) => (
-              <>
-                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.6)]" />}
-                <item.icon className={iconClass(isActive)} />
-                <span className="pt-[2px]">{item.label}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+      <nav style={{
+        flex: 1, padding: '20px 16px', overflowY: 'auto',
+        msOverflowStyle: 'none', scrollbarWidth: 'none',
+      }}>
+        <p style={{
+          padding: '8px 16px', fontSize: '10px', fontWeight: 700,
+          color: 'rgba(100,116,139,0.6)', textTransform: 'uppercase',
+          letterSpacing: '0.15em', marginBottom: '8px',
+        }}>{t('sidebar.main')}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          {menuItems.map(renderLink)}
+        </div>
 
         {isAdmin && (
-          <div className="pt-6 mt-6 border-t border-white/[0.04]">
-            <p className="px-4 py-2 text-[10px] font-bold text-slate-500/70 uppercase tracking-[0.15em] mb-2">
-              Administrator
-            </p>
-            <div className="space-y-1.5">
-              {adminItems.map((item) => (
-                <NavLink key={item.path} to={item.path} className={linkClass}>
-                  {({ isActive }) => (
-                    <>
-                      {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.6)]" />}
-                      <item.icon className={iconClass(isActive)} />
-                      <span className="pt-[2px]">{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              ))}
+          <div style={{ paddingTop: '20px', marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <p style={{
+              padding: '8px 16px', fontSize: '10px', fontWeight: 700,
+              color: 'rgba(100,116,139,0.6)', textTransform: 'uppercase',
+              letterSpacing: '0.15em', marginBottom: '8px',
+            }}>Administrator</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {adminItems.map(renderLink)}
             </div>
           </div>
         )}
       </nav>
 
-      {/* Profile Section */}
-      <div className="p-4 border-t border-white/[0.04] bg-[#0B1120]">
-        <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.02] hover:bg-white/[0.04] transition-colors duration-300">
-          <div className="w-10 h-10 shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+      {/* Profile */}
+      <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          padding: '12px', borderRadius: '16px',
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)',
+        }}>
+          <div style={{
+            width: '40px', height: '40px', flexShrink: 0, borderRadius: '50%',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 700, fontSize: '14px',
+            boxShadow: '0 0 15px rgba(99,102,241,0.3)',
+          }}>
             {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
           </div>
-          <div className="flex-1 min-w-0 pt-0.5">
-            <p className="text-slate-200 text-[13px] font-bold truncate leading-tight">{user?.fullName}</p>
-            <p className="text-slate-500 text-[11px] font-medium mt-0.5">{user?.role === 'ADMIN' ? 'Administrator' : user?.role}</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              color: '#e2e8f0', fontSize: '13px', fontWeight: 700, margin: 0,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3,
+            }}>{user?.fullName}</p>
+            <p style={{ color: '#64748b', fontSize: '11px', fontWeight: 500, margin: '2px 0 0 0' }}>
+              {user?.role === 'ADMIN' ? 'Administrator' : user?.role}
+            </p>
           </div>
-          <button 
+          <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLogout(); }}
-            className="w-8 h-8 shrink-0 flex items-center justify-center rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all duration-300"
+            style={{
+              width: '32px', height: '32px', flexShrink: 0, borderRadius: '10px',
+              background: 'transparent', border: 'none', color: '#64748b',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.3s',
+            }}
             title="Chiqish"
           >
-            <HiOutlineArrowRightOnRectangle className="text-[18px]" />
+            <HiOutlineArrowRightOnRectangle style={{ fontSize: '18px' }} />
           </button>
         </div>
       </div>
