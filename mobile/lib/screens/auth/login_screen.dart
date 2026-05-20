@@ -66,24 +66,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 // Logo
                 Container(
-                  width: 72,
-                  height: 72,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF3B82F6), Color(0xFF6366F1)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+                        color: const Color(0xFF3B82F6).withValues(alpha: 0.2),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.precision_manufacturing_rounded, color: Colors.white, size: 36),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset('assets/images/icon.png', fit: BoxFit.cover),
+                  ),
                 ),
                 const SizedBox(height: 20),
 

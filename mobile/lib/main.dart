@@ -49,14 +49,16 @@ class SplashScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 80,
-                height: 80,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF7C3AED)]),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.3), blurRadius: 24)],
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.2), blurRadius: 30)],
                 ),
-                child: const Icon(Icons.computer_rounded, color: Colors.white, size: 40),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset('assets/images/icon.png', fit: BoxFit.cover),
+                ),
               ),
               const SizedBox(height: 24),
               const Text('BOSHLIQ', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800, letterSpacing: 3)),
