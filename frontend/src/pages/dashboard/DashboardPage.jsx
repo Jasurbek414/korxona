@@ -27,45 +27,45 @@ export default function DashboardPage() {
     {
       label: 'Jami uskunalar', value: kpi?.totalEquipment, sub: "Barcha uskunalar",
       icon: HiOutlineComputerDesktop,
-      bgLight: 'bg-blue-50', iconColor: 'text-blue-600', ringColor: 'ring-blue-500/20'
+      bgLight: '#eff6ff', iconColor: '#2563eb', ringColor: 'rgba(59,130,246,0.2)'
     },
     {
       label: 'PPR Rejasi', value: kpi ? `${kpi.pprCompletionRate}%` : '—',
       sub: kpi ? `${kpi.pprCompletedTasks} ta bajarildi` : '',
       icon: HiOutlineArrowTrendingUp,
-      bgLight: 'bg-emerald-50', iconColor: 'text-emerald-600', ringColor: 'ring-emerald-500/20'
+      bgLight: '#ecfdf5', iconColor: '#059669', ringColor: 'rgba(16,185,129,0.2)'
     },
     {
       label: "Muddati o'tgan", value: kpi?.overdueTasks,
       sub: 'Kechikkan vazifalar',
       icon: HiOutlineExclamationTriangle,
-      bgLight: kpi?.overdueTasks > 0 ? 'bg-rose-50' : 'bg-slate-50', 
-      iconColor: kpi?.overdueTasks > 0 ? 'text-rose-600' : 'text-slate-500',
-      ringColor: kpi?.overdueTasks > 0 ? 'ring-rose-500/30' : 'ring-slate-500/10',
+      bgLight: kpi?.overdueTasks > 0 ? '#fff1f2' : '#f8fafc', 
+      iconColor: kpi?.overdueTasks > 0 ? '#e11d48' : '#64748b',
+      ringColor: kpi?.overdueTasks > 0 ? 'rgba(225,29,72,0.3)' : 'rgba(100,116,139,0.1)',
       alert: kpi?.overdueTasks > 0,
     },
     {
       label: 'Kam qoldiq', value: kpi?.lowStockAlerts,
       sub: 'Tugayotgan qismlar',
       icon: HiOutlineCube,
-      bgLight: kpi?.lowStockAlerts > 0 ? 'bg-amber-50' : 'bg-slate-50', 
-      iconColor: kpi?.lowStockAlerts > 0 ? 'text-amber-600' : 'text-slate-500',
-      ringColor: kpi?.lowStockAlerts > 0 ? 'ring-amber-500/30' : 'ring-slate-500/10',
+      bgLight: kpi?.lowStockAlerts > 0 ? '#fffbeb' : '#f8fafc', 
+      iconColor: kpi?.lowStockAlerts > 0 ? '#d97706' : '#64748b',
+      ringColor: kpi?.lowStockAlerts > 0 ? 'rgba(217,119,6,0.3)' : 'rgba(100,116,139,0.1)',
       alert: kpi?.lowStockAlerts > 0,
     },
     {
       label: 'Bugungi ishlar', value: kpi?.todayTasks,
       sub: 'Bajarilishi shart',
       icon: HiOutlineCalendarDays,
-      bgLight: 'bg-violet-50', iconColor: 'text-violet-600', ringColor: 'ring-violet-500/20'
+      bgLight: '#f5f3ff', iconColor: '#7c3aed', ringColor: 'rgba(124,58,237,0.2)'
     },
   ];
 
   const quickActions = [
-    { href: '/equipment', icon: HiOutlineComputerDesktop, label: "Uskunalar", desc: "Barcha ro'yxatni ko'rish", colors: 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-900', iconColor: 'text-blue-700' },
-    { href: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR Vazifalar', desc: 'Rejali ishlar jadvali', colors: 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-900', iconColor: 'text-emerald-700' },
-    { href: '/warehouse', icon: HiOutlineCube, label: 'Omborxona', desc: 'Ehtiyot qismlar hisobi', colors: 'bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-900', iconColor: 'text-amber-700' },
-    { href: '/references', icon: HiOutlineCalendarDays, label: "Ma'lumotnomalar", desc: 'Toifa va statuslar', colors: 'bg-violet-50 hover:bg-violet-100 border-violet-200 text-violet-900', iconColor: 'text-violet-700' },
+    { href: '/equipment', icon: HiOutlineComputerDesktop, label: "Uskunalar", desc: "Barcha ro'yxatni ko'rish", bg: '#eff6ff', border: '#bfdbfe', text: '#1e3a8a', iconColor: '#1d4ed8' },
+    { href: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR Vazifalar', desc: 'Rejali ishlar jadvali', bg: '#ecfdf5', border: '#a7f3d0', text: '#064e3b', iconColor: '#047857' },
+    { href: '/warehouse', icon: HiOutlineCube, label: 'Omborxona', desc: 'Ehtiyot qismlar hisobi', bg: '#fffbeb', border: '#fde68a', text: '#78350f', iconColor: '#b45309' },
+    { href: '/references', icon: HiOutlineCalendarDays, label: "Ma'lumotnomalar", desc: 'Toifa va statuslar', bg: '#f5f3ff', border: '#ddd6fe', text: '#4c1d95', iconColor: '#6d28d9' },
   ];
 
   const pprPercent = kpi?.pprCompletionRate || 0;
@@ -74,43 +74,43 @@ export default function DashboardPage() {
   const strokeDash = (pprPercent / 100) * circumference;
 
   return (
-    <div style={{ paddingBottom: '48px', width: '100%', maxWidth: '1600px', margin: '0 auto' }} className="animate-fade-in">
+    <div style={{ padding: '24px', paddingBottom: '48px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
       {/* Header */}
       <div style={{ marginBottom: '40px' }}>
-        <h1 className="text-[32px] md:text-[36px] font-black text-slate-900 tracking-tight leading-tight mb-2 flex items-center gap-3">
+        <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
           Xush kelibsiz, 
           <span className="relative inline-block">
             <span className="relative bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">{user?.fullName || 'Admin'}</span>
           </span>
-          <HiOutlineSparkles className="text-amber-400 text-3xl animate-pulse" />
+          <HiOutlineSparkles style={{ color: '#fbbf24', fontSize: '32px' }} className="animate-pulse" />
         </h1>
-        <p className="text-slate-500 text-[15px] font-medium tracking-wide">Boshqaruv paneli — tizimning umumiy holati va muhim ko'rsatkichlari</p>
+        <p style={{ color: '#64748b', fontSize: '15px', fontWeight: 500, margin: 0 }}>Boshqaruv paneli — tizimning umumiy holati va muhim ko'rsatkichlari</p>
       </div>
 
       {/* KPI Cards Grid */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '40px' }}>
         {kpiCards.map((card, i) => (
-          <div key={i} style={{ flex: '1 1 240px', minWidth: '240px' }} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group flex flex-col">
-            <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full ${card.bgLight} opacity-50 group-hover:scale-125 transition-transform duration-700 pointer-events-none`} />
+          <div key={i} style={{ flex: '1 1 240px', minWidth: '240px', background: '#fff', borderRadius: '24px', padding: '24px', border: '1px solid #e2e8f0', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
+            <div style={{ position: 'absolute', right: '-32px', top: '-32px', width: '128px', height: '128px', borderRadius: '50%', background: card.bgLight, opacity: 0.5, pointerEvents: 'none' }} />
             
-            <div className="flex justify-between items-start mb-6 relative z-10">
-              <div className={`w-14 h-14 rounded-2xl ${card.bgLight} flex items-center justify-center ring-1 ${card.ringColor} shadow-sm`}>
-                <card.icon className={`text-[26px] ${card.iconColor}`} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', position: 'relative', zIndex: 10 }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: card.bgLight, display: 'flex', alignItems: 'center', justifyContent: 'center', border: `1px solid ${card.ringColor}` }}>
+                <card.icon style={{ fontSize: '26px', color: card.iconColor }} />
               </div>
               {card.alert && (
-                <span className="flex h-3.5 w-3.5 relative mt-1.5 mr-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-500 border-2 border-white"></span>
+                <span style={{ display: 'flex', height: '14px', width: '14px', position: 'relative', marginTop: '6px', marginRight: '6px' }}>
+                  <span className="animate-ping" style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: '50%', background: '#fb7185', opacity: 0.75 }}></span>
+                  <span style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '50%', background: '#f43f5e', border: '2px solid #fff' }}></span>
                 </span>
               )}
             </div>
             
-            <div className="relative z-10 mt-auto flex flex-col gap-1.5">
-              <p className="text-[36px] font-black text-slate-800 tracking-tighter leading-none mb-1">
+            <div style={{ position: 'relative', zIndex: 10, marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <p style={{ fontSize: '36px', fontWeight: 900, color: '#1e293b', margin: 0, lineHeight: 1 }}>
                 {loading ? <span className="skeleton inline-block w-20 h-10 rounded-lg" /> : card.value}
               </p>
-              <p className="text-[16px] font-bold text-slate-700 leading-tight">{card.label}</p>
-              <p className="text-[13px] font-medium text-slate-400">{card.sub}</p>
+              <p style={{ fontSize: '15px', fontWeight: 700, color: '#334155', margin: 0, lineHeight: 1.2 }}>{card.label}</p>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: '#94a3b8', margin: 0 }}>{card.sub}</p>
             </div>
           </div>
         ))}
@@ -118,14 +118,14 @@ export default function DashboardPage() {
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px' }}>
         {/* PPR Progress Chart */}
-        <div style={{ flex: '1 1 400px', minWidth: '320px' }} className="bg-white rounded-[32px] p-8 border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="text-[18px] font-extrabold text-slate-800 mb-8 flex items-center gap-2">
-            <HiOutlineArrowTrendingUp className="text-emerald-500 text-xl" />
+        <div style={{ flex: '1 1 400px', minWidth: '320px', background: '#fff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1e293b', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <HiOutlineArrowTrendingUp style={{ color: '#10b981', fontSize: '22px' }} />
             PPR Bajarilishi
           </h3>
-          <div className="flex flex-col items-center justify-center w-full">
-            <div className="relative group flex items-center justify-center mb-8">
-              <svg width="180" height="180" className="transform -rotate-90 relative z-10">
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
+              <svg width="180" height="180" style={{ transform: 'rotate(-90deg)', position: 'relative', zIndex: 10 }}>
                 <circle cx="90" cy="90" r={radius} fill="none" stroke="#f1f5f9" strokeWidth="14" />
                 <circle cx="90" cy="90" r={radius} fill="none"
                   stroke="url(#pprGrad)" strokeWidth="14" strokeLinecap="round"
@@ -139,44 +139,44 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
               </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-                <span className="text-[40px] font-black text-slate-800 tracking-tighter leading-none">{pprPercent}%</span>
-                <span className="text-[12px] uppercase font-bold tracking-widest text-emerald-600 mt-2">Bajarildi</span>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 20 }}>
+                <span style={{ fontSize: '40px', fontWeight: 900, color: '#1e293b', lineHeight: 1 }}>{pprPercent}%</span>
+                <span style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.1em', color: '#059669', marginTop: '4px' }}>Bajarildi</span>
               </div>
             </div>
 
-            <div className="w-full grid grid-cols-2 gap-4">
-              <div className="text-center p-5 rounded-2xl bg-slate-50 border border-slate-200">
-                <p className="text-[12px] uppercase font-bold tracking-widest text-slate-500 mb-2">Jami vazifa</p>
-                <p className="text-[24px] font-black text-slate-800">{kpi?.pprTotalTasks || 0}</p>
+            <div style={{ width: '100%', display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, textAlign: 'center', padding: '20px', borderRadius: '24px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                <p style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.1em', color: '#64748b', margin: '0 0 8px 0' }}>Jami vazifa</p>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: '#1e293b', margin: 0 }}>{kpi?.pprTotalTasks || 0}</p>
               </div>
-              <div className="text-center p-5 rounded-2xl bg-emerald-50 border border-emerald-200">
-                <p className="text-[12px] uppercase font-bold tracking-widest text-emerald-600 mb-2">Bajarilgan</p>
-                <p className="text-[24px] font-black text-emerald-700">{kpi?.pprCompletedTasks || 0}</p>
+              <div style={{ flex: 1, textAlign: 'center', padding: '20px', borderRadius: '24px', background: '#ecfdf5', border: '1px solid #a7f3d0' }}>
+                <p style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.1em', color: '#059669', margin: '0 0 8px 0' }}>Bajarilgan</p>
+                <p style={{ fontSize: '24px', fontWeight: 900, color: '#047857', margin: 0 }}>{kpi?.pprCompletedTasks || 0}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div style={{ flex: '2 1 600px', minWidth: '320px' }} className="bg-white rounded-[32px] p-8 border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="text-[18px] font-extrabold text-slate-800 mb-8 flex items-center gap-2">
-            <HiOutlineSparkles className="text-blue-500 text-xl" />
+        <div style={{ flex: '2 1 600px', minWidth: '320px', background: '#fff', borderRadius: '32px', padding: '32px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#1e293b', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <HiOutlineSparkles style={{ color: '#3b82f6', fontSize: '22px' }} />
             Tezkor amallar
           </h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', width: '100%' }}>
             {quickActions.map((action, i) => (
-              <a key={i} href={action.href} style={{ flex: '1 1 280px', minWidth: '250px' }}
-                className={`flex items-start sm:items-center gap-5 p-6 rounded-[24px] border transition-all duration-300 group ${action.colors} hover:-translate-y-1 hover:shadow-md`}>
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center bg-white shadow-sm ring-1 ring-black/5 shrink-0`}>
-                  <action.icon className={`text-[28px] ${action.iconColor}`} />
+              <a key={i} href={action.href} style={{ flex: '1 1 280px', minWidth: '250px', display: 'flex', alignItems: 'center', gap: '20px', padding: '24px', borderRadius: '24px', background: action.bg, border: `1px solid ${action.border}`, textDecoration: 'none', transition: 'all 0.3s' }}
+                className="hover:-translate-y-1 hover:shadow-md group">
+                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                  <action.icon style={{ fontSize: '28px', color: action.iconColor }} />
                 </div>
-                <div className="flex-1 min-w-0 pr-2">
-                  <p className="text-[18px] font-bold tracking-tight leading-tight mb-1.5">{action.label}</p>
-                  <p className="text-[14px] font-medium opacity-80 leading-snug">{action.desc}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '17px', fontWeight: 700, color: action.text, margin: '0 0 6px 0', lineHeight: 1.2 }}>{action.label}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 500, color: action.text, opacity: 0.8, margin: 0, lineHeight: 1.4 }}>{action.desc}</p>
                 </div>
-                <div className="hidden sm:flex w-8 h-8 rounded-full bg-white/60 items-center justify-center shrink-0">
-                  <HiOutlineChevronRight className={`text-[18px] ${action.iconColor}`} />
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <HiOutlineChevronRight style={{ fontSize: '18px', color: action.iconColor }} />
                 </div>
               </a>
             ))}
@@ -186,21 +186,21 @@ export default function DashboardPage() {
 
       {/* Overdue Warning Banner */}
       {kpi?.overdueTasks > 0 && (
-        <div style={{ marginTop: '32px' }} className="bg-gradient-to-r from-rose-50 to-red-50 rounded-[32px] p-8 border border-red-200 shadow-sm flex flex-col md:flex-row items-center gap-6">
-          <div className="w-16 h-16 rounded-[20px] bg-gradient-to-br from-rose-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/30 shrink-0">
-            <HiOutlineExclamationTriangle className="text-white text-[28px]" />
+        <div style={{ marginTop: '32px', background: 'linear-gradient(90deg, #fff1f2, #fef2f2)', borderRadius: '32px', padding: '32px', border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'linear-gradient(135deg, #f43f5e, #e11d48)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 10px 15px -3px rgba(225,29,72,0.3)' }}>
+            <HiOutlineExclamationTriangle style={{ color: '#fff', fontSize: '28px' }} />
           </div>
-          <div className="flex-1 text-center md:text-left">
-            <h4 className="text-[20px] font-black text-rose-800 mb-2 tracking-tight">
+          <div style={{ flex: '1 1 300px', minWidth: '300px' }}>
+            <h4 style={{ fontSize: '20px', fontWeight: 900, color: '#9f1239', margin: '0 0 8px 0' }}>
               Diqqat! {kpi.overdueTasks} ta vazifa muddati o'tgan
             </h4>
-            <p className="text-[15px] font-medium text-rose-700/90 max-w-3xl">
+            <p style={{ fontSize: '15px', fontWeight: 500, color: '#be123c', margin: 0 }}>
               Uskunalar xavfsizligi va ishlash davomiyligini ta'minlash uchun kechikkan PPR vazifalarini zudlik bilan ko'rib chiqing. Bu juda muhim!
             </p>
           </div>
-          <a href="/ppr" className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-[16px] font-bold rounded-2xl shadow-md shadow-red-600/20 transition-all duration-300 flex items-center justify-center gap-2">
+          <a href="/ppr" style={{ padding: '16px 32px', background: 'linear-gradient(90deg, #e11d48, #be123c)', color: '#fff', fontSize: '16px', fontWeight: 700, borderRadius: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 6px -1px rgba(225,29,72,0.2)' }}>
             Vazifalarga o'tish
-            <HiOutlineChevronRight className="text-[18px]" />
+            <HiOutlineChevronRight style={{ fontSize: '18px' }} />
           </a>
         </div>
       )}
