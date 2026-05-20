@@ -268,7 +268,7 @@ export default function WarehousePage() {
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ wwidth: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
                     <th style={thStyle}>Ehtiyot qism</th>
