@@ -15,6 +15,7 @@ import ReportsPage from './pages/reports/ReportsPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
 import ExcelImportPage from './pages/admin/ExcelImportPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import UserRequestsPage from './pages/requests/UserRequestsPage';
 
 export default function App() {
   return (
@@ -34,6 +35,9 @@ export default function App() {
 
             {/* PPR (TZ 3.1-3.12) */}
             <Route path="/ppr" element={<PprTaskListPage />} />
+
+            {/* Arizalar (TZ 3.8) */}
+            <Route path="/requests" element={<UserRequestsPage />} />
 
             {/* Ombor (TZ 4.1-4.5) */}
             <Route path="/warehouse" element={<WarehousePage />} />

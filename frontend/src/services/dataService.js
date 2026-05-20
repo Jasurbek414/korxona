@@ -135,15 +135,20 @@ export const reportService = {
   getOverdueTasks: () => api.get('/reports/overdue-tasks'),
   getSparePartUsage: (dateFrom, dateTo) => api.get('/reports/spare-part-usage', { params: { dateFrom, dateTo } }),
   getWarehouseStock: () => api.get('/reports/warehouse-stock'),
+  // Excel eksport
+  exportEquipmentStatus: () => api.get('/reports/equipment-status/export', { responseType: 'blob' }),
+  exportPprPerformance: (dateFrom, dateTo) => api.get('/reports/ppr-performance/export', { params: { dateFrom, dateTo }, responseType: 'blob' }),
+  exportOverdueTasks: () => api.get('/reports/overdue-tasks/export', { responseType: 'blob' }),
+  exportWarehouseStock: () => api.get('/reports/warehouse-stock/export', { responseType: 'blob' }),
 };
 
 // ====== Arizalar (TZ 3.8) ======
-export const requestService = {
+export const userRequestService = {
   getAll: (params) => api.get('/requests', { params }),
-  getMy: (params) => api.get('/requests/my', { params }),
+  getMyRequests: (params) => api.get('/requests/my', { params }),
   getById: (id) => api.get(`/requests/${id}`),
   create: (data) => api.post('/requests', data),
-  changeStatus: (id, data) => api.patch(`/requests/${id}/status`, data),
+  updateStatus: (id, data) => api.patch(`/requests/${id}/status`, data),
   delete: (id) => api.delete(`/requests/${id}`),
 };
 
@@ -153,4 +158,11 @@ export const importService = {
   importSpareParts: (formData) => api.post('/import/spare-parts', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   downloadTemplate: (type) => api.get(`/import/template/${type}`, { responseType: 'blob' }),
 };
+
+// ====== Zaxira nusxa (TZ 5.5) ======
+export const backupService = {
+  getHistory: () => api.get('/backup'),
+  createBackup: () => api.post('/backup'),
+};
+
 

@@ -5,12 +5,14 @@ import {
   HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowRightOnRectangle,
   HiOutlineCog6Tooth, HiOutlineWrenchScrewdriver, HiOutlineCube,
   HiOutlineChartBarSquare, HiOutlineArchiveBox, HiOutlineDocumentArrowUp,
+  HiOutlinePencilSquare,
 } from 'react-icons/hi2';
 
 const menuItems = [
   { path: '/dashboard', icon: HiOutlineSquares2X2, label: 'Boshqaruv paneli' },
   { path: '/equipment', icon: HiOutlineComputerDesktop, label: 'Uskunalar' },
   { path: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR vazifalari' },
+  { path: '/requests', icon: HiOutlinePencilSquare, label: 'Arizalar' },
   { path: '/warehouse', icon: HiOutlineCube, label: 'Ombor hisobi' },
   { path: '/spare-parts', icon: HiOutlineArchiveBox, label: 'Ehtiyot qismlar' },
   { path: '/reports', icon: HiOutlineChartBarSquare, label: 'Hisobotlar' },
