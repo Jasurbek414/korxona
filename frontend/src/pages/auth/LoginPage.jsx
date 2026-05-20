@@ -139,7 +139,7 @@ export default function LoginPage() {
               <button
                 key={lang}
                 onClick={() => changeLanguage(lang)}
-                className={`flex items-center justify-center px-4 h-8 rounded-full text-[10.5px] font-bold tracking-[0.1em] uppercase transition-all duration-300 border cursor-pointer ${
+                className={`flex items-center justify-center px-4 h-8 rounded-full text-[10.5px] font-bold tracking-[0.1em] uppercase transition-all duration-300 border cursor-pointer leading-none pt-[2px] ${
                   i18n.language === lang
                     ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.1)]'
                     : 'text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/[0.03]'
