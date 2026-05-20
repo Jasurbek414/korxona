@@ -101,21 +101,21 @@ export default function UsersPage() {
   };
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <HiOutlineUsers className="text-2xl text-[var(--color-primary)]" />
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Foydalanuvchilar</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">👥 Foydalanuvchilar</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Jami: {users.length} ta</p>
         </div>
         <button onClick={() => openForm()}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/20 transition-all">
+          className="btn btn-primary">
           <HiOutlinePlusCircle className="text-lg" /> Yangi foydalanuvchi
         </button>
       </div>
 
-      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-sm)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      <div className="card overflow-hidden">
+        <div className="table-container">
+          <table>
             <thead>
               <tr className="bg-[var(--bg-main)] border-b border-[var(--border-color)]">
                 <th className="px-4 py-3 text-left font-semibold text-[var(--text-secondary)]">#</th>
@@ -177,8 +177,8 @@ export default function UsersPage() {
 
       {/* Yaratish/Tahrirlash modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content max-w-lg mx-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
               <h3 className="font-semibold text-lg">{editUser ? 'Tahrirlash' : 'Yangi foydalanuvchi'}</h3>
               <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-slate-100"><HiOutlineXMark className="text-xl" /></button>
@@ -233,8 +233,8 @@ export default function UsersPage() {
 
       {/* Parol tiklash modal */}
       {showResetModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setShowResetModal(null)}>
-          <div className="bg-white rounded-2xl w-full max-w-sm mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setShowResetModal(null)}>
+          <div className="modal-content max-w-sm mx-4" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-[var(--border-color)]">
               <h3 className="font-semibold">Parol tiklash</h3>
               <p className="text-xs text-[var(--text-muted)] mt-1">{showResetModal.fullName}</p>

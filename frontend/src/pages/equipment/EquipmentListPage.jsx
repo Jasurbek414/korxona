@@ -129,17 +129,16 @@ export default function EquipmentListPage() {
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
-    <div>
-      {/* Sarlavha */}
+    <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Uskunalar</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">Jami: {data.totalElements} ta</p>
+          <h1 className="text-2xl font-bold text-slate-800">🖥️ Uskunalar</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Jami: {data.totalElements} ta</p>
         </div>
         {isOperator && (
           <button
             onClick={() => navigate('/equipment/new')}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/20 transition-all duration-200"
+            className="btn btn-primary"
           >
             <HiOutlinePlusCircle className="text-lg" />
             Yangi uskuna
@@ -148,26 +147,24 @@ export default function EquipmentListPage() {
       </div>
 
       {/* Qidiruv va filtr paneli */}
-      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-sm)] mb-5 p-4">
+      <div className="card p-4 mb-5">
         <div className="flex items-center gap-3">
-          {/* Qidiruv */}
           <div className="relative flex-1">
-            <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
+            <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Qidiruv: inventar raqami, nom, seriya..."
-              className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-500/10 transition-all"
+              className="input-field pl-10"
             />
           </div>
-          {/* Filtr tugmasi */}
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium transition-all ${
               activeFilterCount > 0
                 ? 'border-blue-500 bg-blue-50 text-blue-600'
-                : 'border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-main)]'
+                : 'border-slate-200 text-slate-500 hover:bg-slate-50'
             }`}
           >
             <HiOutlineFunnel className="text-base" />
@@ -213,8 +210,8 @@ export default function EquipmentListPage() {
       </div>
 
       {/* Jadval */}
-      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-sm)] overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="card overflow-hidden">
+        <div className="table-container">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[var(--bg-main)] border-b border-[var(--border-color)]">

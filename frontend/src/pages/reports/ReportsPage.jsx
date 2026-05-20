@@ -1,32 +1,33 @@
 import { useState, useEffect } from 'react';
 import { reportService } from '../../services/dataService';
+import toast from 'react-hot-toast';
 import {
   HiOutlineComputerDesktop, HiOutlineWrenchScrewdriver,
   HiOutlineExclamationTriangle, HiOutlineCube, HiOutlineDocumentArrowDown
 } from 'react-icons/hi2';
 
 const TABS = [
-  { key: 'equipment', label: 'Uskunalar holati', icon: HiOutlineComputerDesktop, color: 'blue' },
-  { key: 'ppr', label: 'PPR bajarilishi', icon: HiOutlineWrenchScrewdriver, color: 'emerald' },
-  { key: 'overdue', label: "Muddati o'tgan", icon: HiOutlineExclamationTriangle, color: 'red' },
-  { key: 'spare', label: 'Ehtiyot qismlar sarfi', icon: HiOutlineCube, color: 'amber' },
-  { key: 'stock', label: 'Ombor qoldiqlari', icon: HiOutlineDocumentArrowDown, color: 'violet' },
+  { key: 'equipment', label: 'Uskunalar holati', icon: HiOutlineComputerDesktop, bg: '#2563eb' },
+  { key: 'ppr', label: 'PPR bajarilishi', icon: HiOutlineWrenchScrewdriver, bg: '#059669' },
+  { key: 'overdue', label: "Muddati o'tgan", icon: HiOutlineExclamationTriangle, bg: '#dc2626' },
+  { key: 'spare', label: 'Ehtiyot qismlar sarfi', icon: HiOutlineCube, bg: '#d97706' },
+  { key: 'stock', label: 'Ombor qoldiqlari', icon: HiOutlineDocumentArrowDown, bg: '#7c3aed' },
 ];
+
+const EXPORTABLE = ['equipment', 'ppr', 'overdue', 'stock'];
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState('equipment');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
-  // Davr filtri
   const today = new Date();
   const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
   const [dateFrom, setDateFrom] = useState(monthStart);
   const [dateTo, setDateTo] = useState(today.toISOString().slice(0, 10));
 
-  useEffect(() => {
-    loadReport();
-  }, [activeTab, dateFrom, dateTo]);
+  useEffect(() => { loadReport(); }, [activeTab, dateFrom, dateTo]);
 
   const loadReport = async () => {
     setLoading(true);
@@ -45,7 +46,32 @@ export default function ReportsPage() {
     setLoading(false);
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      let res;
+      let filename;
+      switch (activeTab) {
+        case 'equipment': res = await reportService.exportEquipmentStatus(); filename = 'uskunalar_holati.xlsx'; break;
+        case 'ppr': res = await reportService.exportPprPerformance(dateFrom, dateTo); filename = 'ppr_bajarilishi.xlsx'; break;
+        case 'overdue': res = await reportService.exportOverdueTasks(); filename = 'muddati_otgan.xlsx'; break;
+        case 'stock': res = await reportService.exportWarehouseStock(); filename = 'ombor_qoldiqlari.xlsx'; break;
+      }
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Hisobot yuklab olindi");
+    } catch {
+      toast.error("Eksport qilishda xato");
+    }
+    setExporting(false);
+  };
+
   const needsDateFilter = ['ppr', 'spare'].includes(activeTab);
+  const canExport = EXPORTABLE.includes(activeTab);
 
   return (
     <div className="animate-fade-in">
@@ -55,6 +81,15 @@ export default function ReportsPage() {
           <h1 className="text-2xl font-bold text-slate-800">📊 Hisobotlar</h1>
           <p className="text-sm text-slate-500 mt-1">Tizimning analitik ko'rsatkichlari</p>
         </div>
+        {canExport && data && (
+          <button onClick={handleExport} disabled={exporting} className="btn btn-success btn-sm">
+            {exporting ? (
+              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Yuklanmoqda...</>
+            ) : (
+              <>📥 Excel yuklab olish</>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Tablar */}
@@ -63,10 +98,10 @@ export default function ReportsPage() {
           <button key={t.key} onClick={() => setActiveTab(t.key)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
               activeTab === t.key
-                ? `bg-${t.color}-600 text-white shadow-lg shadow-${t.color}-500/20`
+                ? 'text-white shadow-lg'
                 : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
             }`}
-            style={activeTab === t.key ? { background: `var(--tw-gradient-stops, var(--color-${t.color}-600, #2563eb))` } : {}}>
+            style={activeTab === t.key ? { background: t.bg, boxShadow: `0 4px 14px -2px ${t.bg}40` } : {}}>
             <t.icon className="text-base" />
             {t.label}
           </button>
@@ -94,15 +129,10 @@ export default function ReportsPage() {
           <div className="p-16 text-center text-slate-400">Ma'lumot topilmadi</div>
         ) : (
           <>
-            {/* 1. Uskunalar holati */}
             {activeTab === 'equipment' && <EquipmentStatusView data={data} />}
-            {/* 2. PPR bajarilishi */}
             {activeTab === 'ppr' && <PprPerformanceView data={data} />}
-            {/* 3. Muddati o'tgan */}
             {activeTab === 'overdue' && <OverdueView data={data} />}
-            {/* 4. Ehtiyot qismlar sarfi */}
             {activeTab === 'spare' && <SpareUsageView data={data} />}
-            {/* 5. Ombor qoldiqlari */}
             {activeTab === 'stock' && <StockView data={data} />}
           </>
         )}

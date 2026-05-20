@@ -140,7 +140,7 @@ export default function EquipmentFormPage() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-4xl animate-fade-in">
       {/* Sarlavha */}
       <div className="flex items-center gap-4 mb-6">
         <button onClick={() => navigate('/equipment')}
@@ -157,9 +157,8 @@ export default function EquipmentFormPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-sm)] p-6">
-        {/* Asosiy ma'lumotlar */}
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">Asosiy ma'lumotlar</h2>
+      <form onSubmit={handleSubmit} className="card p-6">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Asosiy ma'lumotlar</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <Field label="Inventar raqami" required>
             <input type="text" value={form.inventoryNumber} onChange={e => set('inventoryNumber', e.target.value)}
@@ -195,8 +194,7 @@ export default function EquipmentFormPage() {
           </Field>
         </div>
 
-        {/* Texnik ma'lumotlar */}
-        <h2 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider mb-4">Texnik ma'lumotlar</h2>
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">Texnik ma'lumotlar</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <Field label="Ishlab chiqaruvchi">
             <select value={form.manufacturerId} onChange={e => set('manufacturerId', e.target.value)} className="input-field">
@@ -240,7 +238,7 @@ export default function EquipmentFormPage() {
             Bekor qilish
           </button>
           <button type="submit" disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50">
+            className="btn btn-primary disabled:opacity-50">
             {saving ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
