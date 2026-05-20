@@ -4,7 +4,7 @@ import {
   HiOutlineSquares2X2, HiOutlineComputerDesktop, HiOutlineRectangleStack,
   HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowRightOnRectangle,
   HiOutlineCog6Tooth, HiOutlineWrenchScrewdriver, HiOutlineCube,
-  HiOutlineChartBarSquare, HiOutlineArchiveBox,
+  HiOutlineChartBarSquare, HiOutlineArchiveBox, HiOutlineDocumentArrowUp,
 } from 'react-icons/hi2';
 
 const menuItems = [
@@ -19,6 +19,7 @@ const menuItems = [
 
 const adminItems = [
   { path: '/users', icon: HiOutlineUsers, label: 'Foydalanuvchilar' },
+  { path: '/excel-import', icon: HiOutlineDocumentArrowUp, label: 'Excel import' },
   { path: '/audit-log', icon: HiOutlineClipboardDocumentList, label: 'Audit jurnali' },
   { path: '/settings', icon: HiOutlineCog6Tooth, label: 'Sozlamalar' },
 ];

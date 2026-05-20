@@ -13,23 +13,18 @@ import WarehousePage from './pages/warehouse/WarehousePage';
 import SparePartsPage from './pages/warehouse/SparePartsPage';
 import ReportsPage from './pages/reports/ReportsPage';
 import AuditLogPage from './pages/admin/AuditLogPage';
+import ExcelImportPage from './pages/admin/ExcelImportPage';
+import SettingsPage from './pages/admin/SettingsPage';
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Ochiq sahifalar */}
           <Route path="/login" element={<LoginPage />} />
 
-          {/* Himoyalangan sahifalar */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            {/* Boshqaruv (TZ 5.2) */}
             <Route path="/dashboard" element={<DashboardPage />} />
 
             {/* Uskunalar (TZ 2.1-2.13) */}
@@ -44,22 +39,17 @@ export default function App() {
             <Route path="/warehouse" element={<WarehousePage />} />
             <Route path="/spare-parts" element={<SparePartsPage />} />
 
-            {/* Hisobotlar (TZ 5.1-5.2) */}
+            {/* Hisobotlar (TZ 5.1) */}
             <Route path="/reports" element={<ReportsPage />} />
 
             {/* Ma'lumotnomalar */}
             <Route path="/references" element={<ReferencesPage />} />
 
             {/* Admin sahifalari */}
-            <Route path="/users" element={
-              <ProtectedRoute adminOnly><UsersPage /></ProtectedRoute>
-            } />
-            <Route path="/audit-log" element={
-              <ProtectedRoute adminOnly><AuditLogPage /></ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <div className="text-lg text-slate-500">Sozlamalar — keyingi bosqichda</div>
-            } />
+            <Route path="/users" element={<ProtectedRoute adminOnly><UsersPage /></ProtectedRoute>} />
+            <Route path="/audit-log" element={<ProtectedRoute adminOnly><AuditLogPage /></ProtectedRoute>} />
+            <Route path="/excel-import" element={<ProtectedRoute adminOnly><ExcelImportPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute adminOnly><SettingsPage /></ProtectedRoute>} />
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
