@@ -86,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 1.5,
+                  childAspectRatio: 1.35,
                   children: [
                     _KpiCard(title: 'Jami uskunalar', value: '${kpi.totalEquipment}', icon: Icons.computer_rounded, color: AppTheme.primary),
                     _KpiCard(title: 'Faol PPR', value: '${kpi.activePpr}', icon: Icons.build_rounded, color: AppTheme.warning),
@@ -98,7 +98,7 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 1.5,
+                  childAspectRatio: 1.35,
                   children: List.generate(4, (_) => _ShimmerCard()),
                 ),
                 error: (e, s) => SliverToBoxAdapter(
@@ -153,7 +153,7 @@ class _KpiCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -168,11 +168,22 @@ class _KpiCard extends StatelessWidget {
             decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: color, size: 20),
           ),
+          const SizedBox(height: 4),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-              Text(title, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AppTheme.textPrimary, height: 1.1)),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title, 
+                style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, height: 1.1),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ],
