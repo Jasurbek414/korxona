@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { userRequestService } from '../../services/dataService';
 import toast from 'react-hot-toast';
@@ -34,7 +35,7 @@ export default function UserRequestsPage() {
       const res = isAdmin
         ? await userRequestService.getAll()
         : await userRequestService.getMyRequests();
-      setRequests(res.data || []);
+      setRequests(res.data?.content || []);
     } catch { /* ignore */ }
     setLoading(false);
   }, [isAdmin]);
@@ -178,8 +179,8 @@ export default function UserRequestsPage() {
       </div>
 
       {/* Yangi ariza modali */}
-      {showModal && (
-        <div className="modal-overlay">
+      {showModal && createPortal(
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
           <div className="modal-content max-w-lg mx-4 p-6">
             <h2 className="text-xl font-bold text-slate-800 mb-5">📝 Yangi ariza yuborish</h2>
             <form onSubmit={handleCreate} className="space-y-4">
@@ -199,10 +200,17 @@ export default function UserRequestsPage() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1.5">Mavzu *</label>
-                <input required value={form.subject} onChange={e => setForm({...form, subject: e.target.value})}
-                  className="input-field" placeholder="Ariza mavzusi" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Mavzu *</label>
+                  <input required value={form.subject} onChange={e => setForm({...form, subject: e.target.value})}
+                    className="input-field" placeholder="Ariza mavzusi" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Uskuna ID *</label>
+                  <input required type="number" value={form.equipmentId} onChange={e => setForm({...form, equipmentId: e.target.value})}
+                    className="input-field" placeholder="Masalan: 12" />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-1.5">Tavsif *</label>
@@ -215,7 +223,8 @@ export default function UserRequestsPage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
