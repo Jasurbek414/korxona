@@ -4,6 +4,7 @@ import {
   HiOutlineSquares2X2, HiOutlineComputerDesktop, HiOutlineRectangleStack,
   HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowRightOnRectangle,
   HiOutlineCog6Tooth, HiOutlineWrenchScrewdriver, HiOutlineCube,
+  HiOutlineChartBarSquare, HiOutlineArchiveBox,
 } from 'react-icons/hi2';
 
 const menuItems = [
@@ -11,6 +12,8 @@ const menuItems = [
   { path: '/equipment', icon: HiOutlineComputerDesktop, label: 'Uskunalar' },
   { path: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR vazifalari' },
   { path: '/warehouse', icon: HiOutlineCube, label: 'Ombor hisobi' },
+  { path: '/spare-parts', icon: HiOutlineArchiveBox, label: 'Ehtiyot qismlar' },
+  { path: '/reports', icon: HiOutlineChartBarSquare, label: 'Hisobotlar' },
   { path: '/references', icon: HiOutlineRectangleStack, label: "Ma'lumotnomalar" },
 ];
 

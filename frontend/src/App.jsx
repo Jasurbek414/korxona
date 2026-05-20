@@ -10,6 +10,9 @@ import ReferencesPage from './pages/references/ReferencesPage';
 import UsersPage from './pages/dashboard/UsersPage';
 import PprTaskListPage from './pages/ppr/PprTaskListPage';
 import WarehousePage from './pages/warehouse/WarehousePage';
+import SparePartsPage from './pages/warehouse/SparePartsPage';
+import ReportsPage from './pages/reports/ReportsPage';
+import AuditLogPage from './pages/admin/AuditLogPage';
 
 export default function App() {
   return (
@@ -29,7 +32,7 @@ export default function App() {
           >
             <Route path="/dashboard" element={<DashboardPage />} />
 
-            {/* Uskunalar */}
+            {/* Uskunalar (TZ 2.1-2.13) */}
             <Route path="/equipment" element={<EquipmentListPage />} />
             <Route path="/equipment/new" element={<EquipmentFormPage />} />
             <Route path="/equipment/:id/edit" element={<EquipmentFormPage />} />
@@ -39,6 +42,10 @@ export default function App() {
 
             {/* Ombor (TZ 4.1-4.5) */}
             <Route path="/warehouse" element={<WarehousePage />} />
+            <Route path="/spare-parts" element={<SparePartsPage />} />
+
+            {/* Hisobotlar (TZ 5.1-5.2) */}
+            <Route path="/reports" element={<ReportsPage />} />
 
             {/* Ma'lumotnomalar */}
             <Route path="/references" element={<ReferencesPage />} />
@@ -48,9 +55,7 @@ export default function App() {
               <ProtectedRoute adminOnly><UsersPage /></ProtectedRoute>
             } />
             <Route path="/audit-log" element={
-              <ProtectedRoute adminOnly>
-                <div className="text-lg text-slate-500">Audit jurnali — keyingi bosqichda</div>
-              </ProtectedRoute>
+              <ProtectedRoute adminOnly><AuditLogPage /></ProtectedRoute>
             } />
             <Route path="/settings" element={
               <div className="text-lg text-slate-500">Sozlamalar — keyingi bosqichda</div>
