@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
+import '../../data/api_client.dart';
+import '../notifications/notifications_screen.dart';
+import '../requests/requests_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -14,121 +17,303 @@ class ProfileScreen extends ConsumerWidget {
     final initials = user.fullName.split(' ').map((w) => w.isNotEmpty ? w[0] : '').join().toUpperCase();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Avatar card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.border),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [Color(0xFF3B82F6), Color(0xFF6366F1)]),
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [BoxShadow(color: AppTheme.primary.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
-                  ),
-                  child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700))),
-                ),
-                const SizedBox(height: 16),
-                Text(user.fullName, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 4),
-                Text('@${user.username}', style: const TextStyle(color: AppTheme.textMuted, fontSize: 13)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: user.isAdmin ? AppTheme.danger.withValues(alpha: 0.1) : AppTheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    user.isAdmin ? '👑 Administrator' : user.role,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: user.isAdmin ? AppTheme.danger : AppTheme.primary),
+      body: CustomScrollView(
+        slivers: [
+          // Gradient header
+          SliverAppBar(
+            expandedHeight: 200,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF1E3A5F), Color(0xFF2563EB), Color(0xFF6366F1)],
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Ma'lumotlar
-          _InfoTile(icon: Icons.email_outlined, label: 'Email', value: user.email ?? '—'),
-          _InfoTile(icon: Icons.phone_outlined, label: 'Telefon', value: user.phone ?? '—'),
-          const SizedBox(height: 16),
-
-          // Sozlamalar
-          _ActionTile(icon: Icons.language_rounded, label: 'Til: O\'zbekcha', onTap: () {}),
-          _ActionTile(icon: Icons.lock_outline_rounded, label: 'Parolni o\'zgartirish', onTap: () {}),
-          _ActionTile(icon: Icons.info_outline_rounded, label: 'Ilova haqida', onTap: () {
-            showAboutDialog(context: context, applicationName: 'Uskunalar Boshqaruvi', applicationVersion: '1.0.0');
-          }),
-          const SizedBox(height: 24),
-
-          // Chiqish
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => ref.read(authProvider.notifier).logout(),
-              icon: const Icon(Icons.logout_rounded, color: AppTheme.danger),
-              label: const Text('Chiqish', style: TextStyle(color: AppTheme.danger)),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                side: BorderSide(color: AppTheme.danger.withValues(alpha: 0.3)),
+                child: SafeArea(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 16),
+                        // Avatar
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFF60A5FA), Color(0xFFA78BFA)]),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
+                          ),
+                          child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700))),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(user.fullName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            user.isAdmin ? '👑 Administrator' : '🔧 ${user.role}',
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
+              title: Text(user.fullName, style: const TextStyle(fontSize: 16)),
+            ),
+            foregroundColor: Colors.white,
+          ),
+
+          // Content
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Shaxsiy ma'lumotlar
+                _SectionLabel(text: 'Shaxsiy ma\'lumotlar'),
+                _InfoTile(icon: Icons.person_rounded, label: 'F.I.O.', value: user.fullName, color: AppTheme.primary),
+                _InfoTile(icon: Icons.alternate_email_rounded, label: 'Username', value: '@${user.username}', color: AppTheme.secondary),
+                _InfoTile(icon: Icons.email_rounded, label: 'Email', value: user.email ?? 'Kiritilmagan', color: AppTheme.info),
+                _InfoTile(icon: Icons.phone_rounded, label: 'Telefon', value: user.phone ?? 'Kiritilmagan', color: AppTheme.success),
+                const SizedBox(height: 20),
+
+                // Tezkor harakatlar
+                _SectionLabel(text: 'Harakatlar'),
+                _ActionCard(
+                  icon: Icons.notifications_rounded,
+                  label: 'Xabarnomalar',
+                  subtitle: '4 ta yangi xabar',
+                  color: AppTheme.warning,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                ),
+                _ActionCard(
+                  icon: Icons.assignment_rounded,
+                  label: 'Mening arizalarim',
+                  subtitle: 'Barcha arizalaringiz',
+                  color: AppTheme.info,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RequestsScreen())),
+                ),
+                _ActionCard(
+                  icon: Icons.lock_rounded,
+                  label: 'Parolni o\'zgartirish',
+                  subtitle: 'Xavfsizlik sozlamalari',
+                  color: AppTheme.secondary,
+                  onTap: () => _showChangePasswordDialog(context),
+                ),
+                const SizedBox(height: 20),
+
+                // Sozlamalar
+                _SectionLabel(text: 'Sozlamalar'),
+                _SettingsTile(icon: Icons.language_rounded, label: 'Til', trailing: 'O\'zbekcha'),
+                _SettingsTile(icon: Icons.dark_mode_rounded, label: 'Qorong\'i rejim', trailing: 'O\'chiq'),
+                _SettingsTile(
+                  icon: Icons.info_outline_rounded,
+                  label: 'Ilova haqida',
+                  trailing: 'v1.0.0',
+                  onTap: () => showAboutDialog(
+                    context: context,
+                    applicationName: 'Uskunalar Boshqaruvi',
+                    applicationVersion: '1.0.0',
+                    applicationLegalese: '© 2026 Boshliq',
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Chiqish
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppTheme.danger.withValues(alpha: 0.2)),
+                  ),
+                  child: ListTile(
+                    onTap: () => _showLogoutDialog(context, ref),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(color: AppTheme.danger.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                      child: const Icon(Icons.logout_rounded, color: AppTheme.danger, size: 20),
+                    ),
+                    title: const Text('Chiqish', style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w600)),
+                    subtitle: const Text('Tizimdan chiqish', style: TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.danger),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ]),
             ),
           ),
         ],
       ),
     );
   }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Chiqish'),
+        content: const Text('Tizimdan chiqishni xohlaysizmi?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor')),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ref.read(authProvider.notifier).logout();
+            },
+            style: FilledButton.styleFrom(backgroundColor: AppTheme.danger),
+            child: const Text('Chiqish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final currentCtrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textMuted.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 20),
+            const Text('🔒 Parolni o\'zgartirish', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 20),
+            TextField(controller: currentCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Joriy parol', prefixIcon: Icon(Icons.lock_outline))),
+            const SizedBox(height: 14),
+            TextField(controller: newCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Yangi parol', prefixIcon: Icon(Icons.lock_rounded))),
+            const SizedBox(height: 14),
+            TextField(controller: confirmCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Parolni tasdiqlang', prefixIcon: Icon(Icons.lock_rounded))),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () async {
+                  if (newCtrl.text != confirmCtrl.text) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('Parollar mos kelmadi'), backgroundColor: AppTheme.danger));
+                    return;
+                  }
+                  try {
+                    await ApiClient().dio.put('/profile/change-password', data: {
+                      'currentPassword': currentCtrl.text,
+                      'newPassword': newCtrl.text,
+                    });
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('✅ Parol o\'zgartirildi'), backgroundColor: AppTheme.success));
+                    }
+                  } catch (e) {
+                    if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Xato: $e'), backgroundColor: AppTheme.danger));
+                  }
+                },
+                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                child: const Text('Saqlash', style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel({required this.text});
+  @override
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 10, top: 4), child: Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppTheme.textMuted, letterSpacing: 0.5)));
 }
 
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _InfoTile({required this.icon, required this.label, required this.value});
+  final Color color;
+  const _InfoTile({required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.border),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppTheme.border)),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppTheme.textMuted),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
-              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, size: 18, color: color),
           ),
+          const SizedBox(width: 14),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(label, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+            const SizedBox(height: 2),
+            Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+          ])),
         ],
       ),
     );
   }
 }
 
-class _ActionTile extends StatelessWidget {
+class _ActionCard extends StatelessWidget {
   final IconData icon;
   final String label;
+  final String subtitle;
+  final Color color;
   final VoidCallback onTap;
-  const _ActionTile({required this.icon, required this.label, required this.onTap});
+  const _ActionCard({required this.icon, required this.label, required this.subtitle, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        onTap: onTap,
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [color.withValues(alpha: 0.15), color.withValues(alpha: 0.05)]),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),
+        trailing: Icon(Icons.chevron_right_rounded, color: color.withValues(alpha: 0.5)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        tileColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String trailing;
+  final VoidCallback? onTap;
+  const _SettingsTile({required this.icon, required this.label, required this.trailing, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -136,9 +321,13 @@ class _ActionTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 6),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(icon, color: AppTheme.textSecondary, size: 22),
+        leading: Icon(icon, color: AppTheme.textSecondary, size: 20),
         title: Text(label, style: const TextStyle(fontSize: 14)),
-        trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted),
+        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+          Text(trailing, style: const TextStyle(fontSize: 13, color: AppTheme.textMuted)),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right_rounded, color: AppTheme.textMuted, size: 18),
+        ]),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         tileColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16),

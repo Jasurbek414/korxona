@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../data/providers.dart';
+import '../notifications/notifications_screen.dart';
+import '../requests/requests_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -18,8 +20,19 @@ class HomeScreen extends ConsumerWidget {
           slivers: [
             // AppBar
             SliverAppBar(
-              expandedHeight: 120,
+              expandedHeight: 130,
               pinned: true,
+              actions: [
+                IconButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                  icon: Stack(
+                    children: [
+                      const Icon(Icons.notifications_outlined, color: Colors.white),
+                      Positioned(right: 0, top: 0, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.danger, shape: BoxShape.circle))),
+                    ],
+                  ),
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
@@ -107,9 +120,13 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         _QuickAction(icon: Icons.qr_code_scanner_rounded, label: 'QR Skanerlash', color: AppTheme.primary, onTap: () {}),
                         const SizedBox(width: 12),
-                        _QuickAction(icon: Icons.add_task_rounded, label: 'Yangi ariza', color: AppTheme.success, onTap: () {}),
+                        _QuickAction(icon: Icons.add_task_rounded, label: 'Yangi ariza', color: AppTheme.success, onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateRequestScreen()));
+                        }),
                         const SizedBox(width: 12),
-                        _QuickAction(icon: Icons.list_alt_rounded, label: 'PPR ro\'yxat', color: AppTheme.warning, onTap: () {}),
+                        _QuickAction(icon: Icons.list_alt_rounded, label: 'Arizalarim', color: AppTheme.warning, onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const RequestsScreen()));
+                        }),
                       ],
                     ),
                   ],
