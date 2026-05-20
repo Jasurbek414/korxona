@@ -46,10 +46,12 @@ public class PprTask extends BaseEntity {
 
     @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private TaskPriority priority = TaskPriority.MEDIUM;
 
     @Column(nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private TaskStatus status = TaskStatus.SCHEDULED;
 
     @Column(columnDefinition = "TEXT")
@@ -59,6 +61,7 @@ public class PprTask extends BaseEntity {
     private String completionNotes;
 
     @Column(name = "time_spent_minutes")
+    @Builder.Default
     private Integer timeSpentMinutes = 0;
 
     public enum TaskPriority { LOW, MEDIUM, HIGH, CRITICAL }
