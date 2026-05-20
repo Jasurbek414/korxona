@@ -275,17 +275,19 @@ function PprPerformanceView({ data }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'center' }}>
         {/* Doiraviy progress */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <svg width="200" height="200" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" strokeWidth="20" />
-            <circle cx="100" cy="100" r="70" fill="none"
-              stroke={rateColor} strokeWidth="20" strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={circumference - strokeDash}
-              style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' }} />
-          </svg>
-          <div style={{ textAlign: 'center', marginTop: '-135px', marginBottom: '50px' }}>
-            <span style={{ fontSize: '48px', fontWeight: 900, color: rateColor }}>{data.completionRate}%</span>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', margin: '4px 0 0 0' }}>bajarilish darajasi</p>
+          <div style={{ position: 'relative', width: '200px', height: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="200" height="200" style={{ transform: 'rotate(-90deg)', position: 'absolute', top: 0, left: 0 }}>
+              <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" strokeWidth="20" />
+              <circle cx="100" cy="100" r="70" fill="none"
+                stroke={rateColor} strokeWidth="20" strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={circumference - strokeDash}
+                style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' }} />
+            </svg>
+            <div style={{ textAlign: 'center', zIndex: 1, marginTop: '8px' }}>
+              <span style={{ fontSize: '42px', fontWeight: 900, color: rateColor, lineHeight: 1, display: 'block' }}>{data.completionRate}%</span>
+              <p style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', margin: '6px 0 0 0', textTransform: 'uppercase' }}>bajarilish</p>
+            </div>
           </div>
         </div>
 
