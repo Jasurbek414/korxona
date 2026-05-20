@@ -10,7 +10,7 @@ export default function MainLayout() {
         style: { borderRadius: '12px', background: '#1e293b', color: '#fff', fontSize: '14px' },
       }} />
       <Sidebar />
-      <main className="ml-64 p-6 min-h-screen">
+      <main style={{ marginLeft: '16rem' }} className="p-6 min-h-screen">
         <div className="animate-fade-in">
           <Outlet />
         </div>

@@ -48,29 +48,24 @@ export default function Sidebar() {
   return (
     <aside className="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0f172a] to-[#1e293b] border-r border-white/5 flex flex-col z-40">
       {/* Logo + til */}
-      <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="w-10 h-10 shrink-0 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
             <HiOutlineComputerDesktop className="text-white text-lg" />
           </div>
-          <div>
-            <h2 className="text-white font-bold text-sm tracking-wide">BOSHLIQ</h2>
-            <p className="text-slate-500 text-xs">{t('auth.loginSubtitle')}</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-white font-bold text-sm tracking-wide truncate">BOSHLIQ</h2>
+            <p className="text-slate-500 text-[10px] truncate">{t('auth.loginSubtitle')}</p>
           </div>
         </div>
         {/* Til almashtirgich */}
-        <div className="flex rounded-lg bg-white/5 p-0.5">
-          {['uz', 'ru'].map(lang => (
-            <button key={lang} onClick={() => changeLanguage(lang)}
-              className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${
-                i18n.language === lang
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}>
-              {lang.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        <button 
+          onClick={() => changeLanguage(i18n.language === 'uz' ? 'ru' : 'uz')}
+          className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-bold text-slate-300 hover:text-white transition-all shadow-sm"
+          title={i18n.language === 'uz' ? "Русский" : "O'zbekcha"}
+        >
+          {i18n.language === 'uz' ? 'UZ' : 'RU'}
+        </button>
       </div>
 
       {/* Navigatsiya */}
