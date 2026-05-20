@@ -24,6 +24,7 @@ public class TaskChecklistItem {
     private String itemText;
 
     @Column(name = "is_completed")
+    @Builder.Default
     private Boolean isCompleted = false;
 
     @Column(name = "completed_at")
@@ -33,6 +34,7 @@ public class TaskChecklistItem {
     private String notes;
 
     @Column(name = "sort_order")
+    @Builder.Default
     private Integer sortOrder = 0;
 
     @Column(name = "created_at")
