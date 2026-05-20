@@ -4,6 +4,8 @@ import ProtectedRoute from './components/ui/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/auth/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import EquipmentListPage from './pages/equipment/EquipmentListPage';
+import ReferencesPage from './pages/references/ReferencesPage';
 
 export default function App() {
   return (
@@ -22,11 +24,11 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/equipment" element={<div className="text-lg text-slate-500">Uskunalar sahifasi — tayyor bo'ladi</div>} />
-            <Route path="/references" element={<div className="text-lg text-slate-500">Ma'lumotnomalar sahifasi — tayyor bo'ladi</div>} />
-            <Route path="/users" element={<div className="text-lg text-slate-500">Foydalanuvchilar sahifasi — tayyor bo'ladi</div>} />
-            <Route path="/audit-log" element={<div className="text-lg text-slate-500">Audit jurnali — tayyor bo'ladi</div>} />
-            <Route path="/settings" element={<div className="text-lg text-slate-500">Sozlamalar — tayyor bo'ladi</div>} />
+            <Route path="/equipment" element={<EquipmentListPage />} />
+            <Route path="/references" element={<ReferencesPage />} />
+            <Route path="/users" element={<div className="text-lg text-slate-500">Foydalanuvchilar sahifasi — keyingi bosqichda</div>} />
+            <Route path="/audit-log" element={<div className="text-lg text-slate-500">Audit jurnali — keyingi bosqichda</div>} />
+            <Route path="/settings" element={<div className="text-lg text-slate-500">Sozlamalar — keyingi bosqichda</div>} />
           </Route>
 
           {/* Redirect */}
