@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { referenceService } from '../../services/dataService';
-import { useAuth } from '../../hooks/useAuthContext';
+import { useAuthContext } from '../../hooks/useAuthContext';
 import toast from 'react-hot-toast';
 import {
-  HiOutlinePlusCircle, HiOutlinePencilSquare, HiOutlineTrash,
+  HiOutlinePlus, HiOutlinePencilSquare, HiOutlineTrash,
   HiOutlineXMark, HiOutlineCheck, HiOutlineRectangleStack,
+  HiOutlineFolder, HiOutlineBuildingOffice2, HiOutlineDevicePhoneMobile,
+  HiOutlineMapPin, HiOutlineUserGroup, HiOutlineTag, HiOutlineDocumentText,
+  HiOutlineArchiveBox
 } from 'react-icons/hi2';
 
 const tabs = [
-  { key: 'categories', label: 'Toifalar', fields: ['nameUz', 'nameRu', 'description'] },
-  { key: 'manufacturers', label: 'Ishlab chiqaruvchilar', fields: ['name', 'country'] },
-  { key: 'models', label: 'Modellar', fields: ['name', 'manufacturerId'] },
-  { key: 'locations', label: 'Joylashuvlar', fields: ['name', 'building', 'floor', 'room'] },
-  { key: 'responsiblePersons', label: "Mas'ul shaxslar", fields: ['fullName', 'position', 'phone', 'email'] },
-  { key: 'statuses', label: 'Statuslar', fields: ['nameUz', 'nameRu', 'color', 'description'] },
-  { key: 'documentTypes', label: 'Hujjat turlari', fields: ['nameUz', 'nameRu'] },
+  { key: 'categories', label: 'Toifalar', icon: HiOutlineFolder, fields: ['nameUz', 'nameRu', 'description'] },
+  { key: 'manufacturers', label: 'Ishlab chiqaruvchilar', icon: HiOutlineBuildingOffice2, fields: ['name', 'country'] },
+  { key: 'models', label: 'Modellar', icon: HiOutlineDevicePhoneMobile, fields: ['name', 'manufacturerId'] },
+  { key: 'locations', label: 'Joylashuvlar', icon: HiOutlineMapPin, fields: ['name', 'building', 'floor', 'room'] },
+  { key: 'responsiblePersons', label: "Mas'ul shaxslar", icon: HiOutlineUserGroup, fields: ['fullName', 'position', 'phone', 'email'] },
+  { key: 'statuses', label: 'Statuslar', icon: HiOutlineTag, fields: ['nameUz', 'nameRu', 'color', 'description'] },
+  { key: 'documentTypes', label: 'Hujjat turlari', icon: HiOutlineDocumentText, fields: ['nameUz', 'nameRu'] },
 ];
 
 const fieldLabels = {
@@ -26,7 +29,9 @@ const fieldLabels = {
 };
 
 export default function ReferencesPage() {
-  const { isAdmin } = useAuth();
+  const { user } = useAuthContext();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [activeTab, setActiveTab] = useState('categories');
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +65,8 @@ export default function ReferencesPage() {
     setShowForm(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
     try {
       if (editItem) {
         await referenceService[activeTab].update(editItem.id, formData);
@@ -85,85 +91,117 @@ export default function ReferencesPage() {
     } catch { toast.error("O'chirishda xato"); }
   };
 
-  // Jadval ustunlari (faqat displayable fields)
+  // Jadval ustunlari
   const displayFields = currentTab.fields.filter(f => f !== 'manufacturerId');
 
+  const inputStyle = { width: '100%', padding: '14px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '15px', fontWeight: 500, color: '#334155', outline: 'none', transition: 'all 0.3s', boxSizing: 'border-box' };
+  const thStyle = { padding: '16px 24px', textAlign: 'left', fontSize: '13px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', background: '#f8fafc' };
+  const tdStyle = { padding: '16px 24px', fontSize: '14px', color: '#334155', borderBottom: '1px solid #f1f5f9', fontWeight: 500 };
+
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-6">
-        <HiOutlineRectangleStack className="text-2xl text-[var(--color-primary)]" />
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]">Ma'lumotnomalar</h1>
+    <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(14,165,233,0.3)' }}>
+            <HiOutlineRectangleStack style={{ color: '#fff', fontSize: '28px' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', tracking: 'tight' }}>Ma'lumotnomalar</h1>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Tizimdagi asosiy ro'yxatlar va kataloglar
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Tablar */}
-      <div className="flex flex-wrap gap-1.5 mb-5">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => { setActiveTab(tab.key); setShowForm(false); }}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === tab.key
-                ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-blue-600/20'
-                : 'bg-[var(--bg-card)] text-[var(--text-secondary)] hover:bg-[var(--bg-main)] border border-[var(--border-color)]'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button key={tab.key} onClick={() => { setActiveTab(tab.key); setShowForm(false); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '16px',
+                fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap',
+                background: isActive ? '#0ea5e9' : '#fff',
+                color: isActive ? '#fff' : '#475569',
+                boxShadow: isActive ? '0 10px 15px -3px rgba(14,165,233,0.3)' : '0 4px 6px -1px rgba(0,0,0,0.05)',
+                border: isActive ? 'none' : '1px solid #cbd5e1'
+              }}>
+              <Icon style={{ fontSize: '18px' }} /> {tab.label}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Jadval */}
-      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border-color)] shadow-[var(--shadow-sm)]">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-color)]">
-          <h2 className="font-semibold text-[var(--text-primary)]">{currentTab.label} ({items.length})</h2>
+      {/* Jadval qismi */}
+      <div style={{ background: '#fff', borderRadius: '24px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
+        {/* Jadval Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px', borderBottom: '1px solid #e2e8f0' }}>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            <currentTab.icon style={{ color: '#0ea5e9', fontSize: '24px' }} />
+            {currentTab.label} <span style={{ color: '#94a3b8', fontSize: '14px' }}>({items.length})</span>
+          </h2>
           {isAdmin && (
-            <button onClick={() => openForm()} className="flex items-center gap-1.5 px-4 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-xl hover:bg-[var(--color-primary-dark)] transition-all">
-              <HiOutlinePlusCircle /> Qo'shish
+            <button onClick={() => openForm()}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.3)', transition: 'all 0.3s' }}
+              className="hover:-translate-y-1 hover:shadow-lg"
+            >
+              <HiOutlinePlus style={{ fontSize: '18px' }} /> Qo'shish
             </button>
           )}
         </div>
 
         {loading ? (
-          <div className="py-16 text-center">
-            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div style={{ padding: '64px', textAlign: 'center' }}>
+            <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #e2e8f0', borderTopColor: '#0ea5e9', borderRadius: '50%', margin: '0 auto 16px' }} />
+            <span style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 600 }}>Yuklanmoqda...</span>
+          </div>
+        ) : items.length === 0 ? (
+          <div style={{ padding: '64px', textAlign: 'center' }}>
+            <HiOutlineArchiveBox style={{ fontSize: '64px', color: '#cbd5e1', margin: '0 auto 16px', display: 'block' }} />
+            <p style={{ color: '#94a3b8', fontSize: '16px', fontWeight: 600, margin: 0 }}>Ushbu bo'limda ma'lumot topilmadi</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
               <thead>
-                <tr className="bg-[var(--bg-main)]">
-                  <th className="px-4 py-3 text-left font-semibold text-[var(--text-secondary)] w-12">#</th>
+                <tr>
+                  <th style={{ ...thStyle, width: '60px' }}>#</th>
                   {displayFields.map(f => (
-                    <th key={f} className="px-4 py-3 text-left font-semibold text-[var(--text-secondary)]">{fieldLabels[f] || f}</th>
+                    <th key={f} style={thStyle}>{fieldLabels[f] || f}</th>
                   ))}
-                  {isAdmin && <th className="px-4 py-3 text-center font-semibold text-[var(--text-secondary)] w-24">Amallar</th>}
+                  {isAdmin && <th style={{ ...thStyle, textAlign: 'center', width: '120px' }}>Amallar</th>}
                 </tr>
               </thead>
               <tbody>
-                {items.length === 0 ? (
-                  <tr><td colSpan={displayFields.length + 2} className="py-12 text-center text-[var(--text-muted)]">Ma'lumot topilmadi</td></tr>
-                ) : items.map((item, i) => (
-                  <tr key={item.id} className="border-b border-[var(--border-color)] hover:bg-blue-50/30 transition-colors">
-                    <td className="px-4 py-3 text-[var(--text-muted)]">{i + 1}</td>
+                {items.map((item, i) => (
+                  <tr key={item.id} style={{ transition: 'background 0.2s' }} className="hover:bg-slate-50">
+                    <td style={{ ...tdStyle, color: '#94a3b8', fontWeight: 700 }}>{i + 1}</td>
                     {displayFields.map(f => (
-                      <td key={f} className="px-4 py-3 text-[var(--text-primary)]">
+                      <td key={f} style={tdStyle}>
                         {f === 'color' ? (
-                          <span className="inline-flex items-center gap-2">
-                            <span className="w-4 h-4 rounded-full border" style={{ backgroundColor: item[f] || '#ccc' }} />
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontWeight: 700 }}>
+                            <span style={{ width: '16px', height: '16px', borderRadius: '4px', backgroundColor: item[f] || '#ccc', border: '1px solid rgba(0,0,0,0.1)' }} />
                             {item[f]}
                           </span>
-                        ) : item[f] || '—'}
+                        ) : (
+                          <span style={{ color: '#0f172a', fontWeight: 600 }}>{item[f] || '—'}</span>
+                        )}
                       </td>
                     ))}
                     {isAdmin && (
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-1">
-                          <button onClick={() => openForm(item)} className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all">
-                            <HiOutlinePencilSquare className="text-base" />
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          <button onClick={() => openForm(item)} title="Tahrirlash"
+                            style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', color: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-sky-50">
+                            <HiOutlinePencilSquare style={{ fontSize: '18px' }} />
                           </button>
-                          <button onClick={() => handleDelete(item.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
-                            <HiOutlineTrash className="text-base" />
+                          <button onClick={() => handleDelete(item.id)} title="O'chirish"
+                            style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #fecaca', background: '#fff', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-red-50">
+                            <HiOutlineTrash style={{ fontSize: '18px' }} />
                           </button>
                         </div>
                       </td>
@@ -178,37 +216,50 @@ export default function ReferencesPage() {
 
       {/* Modal forma */}
       {showForm && createPortal(
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }} onClick={() => setShowForm(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
-              <h3 className="font-semibold text-lg">{editItem ? 'Tahrirlash' : 'Yangi qo\'shish'}</h3>
-              <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-slate-100 transition-colors">
-                <HiOutlineXMark className="text-xl" />
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="animate-fade-in" style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '500px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', margin: '16px' }}>
+            
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {editItem ? <HiOutlinePencilSquare style={{ color: '#0ea5e9', fontSize: '20px' }} /> : <HiOutlinePlus style={{ color: '#0ea5e9', fontSize: '20px' }} />}
+                </div>
+                {editItem ? 'Tahrirlash' : 'Yangi qo\'shish'}
+              </h2>
+              <button type="button" onClick={() => setShowForm(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }} className="hover:text-slate-700">
+                <HiOutlineXMark style={{ fontSize: '24px' }} />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+
+            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {currentTab.fields.map(f => (
                 <div key={f}>
-                  <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">{fieldLabels[f]}</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>{fieldLabels[f]}</label>
                   {f === 'description' ? (
                     <textarea value={formData[f] || ''} onChange={e => setFormData({...formData, [f]: e.target.value})}
-                      className="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-500/10 resize-none h-20" />
+                      style={{ ...inputStyle, resize: 'none', height: '100px' }} placeholder="Tavsif..." />
                   ) : f === 'color' ? (
-                    <input type="color" value={formData[f] || '#000000'} onChange={e => setFormData({...formData, [f]: e.target.value})}
-                      className="w-16 h-10 rounded-lg border border-[var(--border-color)] cursor-pointer" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <input type="color" value={formData[f] || '#000000'} onChange={e => setFormData({...formData, [f]: e.target.value})}
+                        style={{ width: '60px', height: '48px', padding: '4px', borderRadius: '12px', border: '1px solid #cbd5e1', cursor: 'pointer' }} />
+                      <span style={{ fontSize: '14px', fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{formData[f] || '#000000'}</span>
+                    </div>
                   ) : (
-                    <input type="text" value={formData[f] || ''} onChange={e => setFormData({...formData, [f]: e.target.value})}
-                      className="w-full px-3 py-2 border border-[var(--border-color)] rounded-xl text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-500/10" />
+                    <input type="text" required value={formData[f] || ''} onChange={e => setFormData({...formData, [f]: e.target.value})}
+                      style={inputStyle} placeholder={fieldLabels[f]} />
                   )}
                 </div>
               ))}
-            </div>
-            <div className="flex justify-end gap-2 px-6 py-4 border-t border-[var(--border-color)]">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-[var(--text-secondary)] hover:bg-slate-100 rounded-xl transition-colors">Bekor qilish</button>
-              <button onClick={handleSave} className="flex items-center gap-1.5 px-5 py-2 bg-[var(--color-primary)] text-white text-sm font-medium rounded-xl hover:bg-[var(--color-primary-dark)] transition-all">
-                <HiOutlineCheck /> Saqlash
-              </button>
-            </div>
+              
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button type="submit" style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(14,165,233,0.3)' }} className="hover:-translate-y-1 transition-all hover:shadow-lg">
+                  {editItem ? 'Saqlash' : "Qo'shish"}
+                </button>
+                <button type="button" onClick={() => setShowForm(false)} style={{ padding: '14px 24px', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '14px', fontSize: '15px', fontWeight: 600, cursor: 'pointer' }} className="hover:bg-slate-100 transition-colors">
+                  Bekor
+                </button>
+              </div>
+            </form>
           </div>
         </div>,
         document.body
