@@ -1,5 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuthContext';
+import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '../../i18n';
 import {
   HiOutlineSquares2X2, HiOutlineComputerDesktop, HiOutlineRectangleStack,
   HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowRightOnRectangle,
@@ -8,27 +10,28 @@ import {
   HiOutlinePencilSquare,
 } from 'react-icons/hi2';
 
-const menuItems = [
-  { path: '/dashboard', icon: HiOutlineSquares2X2, label: 'Boshqaruv paneli' },
-  { path: '/equipment', icon: HiOutlineComputerDesktop, label: 'Uskunalar' },
-  { path: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR vazifalari' },
-  { path: '/requests', icon: HiOutlinePencilSquare, label: 'Arizalar' },
-  { path: '/warehouse', icon: HiOutlineCube, label: 'Ombor hisobi' },
-  { path: '/spare-parts', icon: HiOutlineArchiveBox, label: 'Ehtiyot qismlar' },
-  { path: '/reports', icon: HiOutlineChartBarSquare, label: 'Hisobotlar' },
-  { path: '/references', icon: HiOutlineRectangleStack, label: "Ma'lumotnomalar" },
-];
-
-const adminItems = [
-  { path: '/users', icon: HiOutlineUsers, label: 'Foydalanuvchilar' },
-  { path: '/excel-import', icon: HiOutlineDocumentArrowUp, label: 'Excel import' },
-  { path: '/audit-log', icon: HiOutlineClipboardDocumentList, label: 'Audit jurnali' },
-  { path: '/settings', icon: HiOutlineCog6Tooth, label: 'Sozlamalar' },
-];
-
 export default function Sidebar() {
   const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const menuItems = [
+    { path: '/dashboard', icon: HiOutlineSquares2X2, label: t('sidebar.dashboard') },
+    { path: '/equipment', icon: HiOutlineComputerDesktop, label: t('sidebar.equipment') },
+    { path: '/ppr', icon: HiOutlineWrenchScrewdriver, label: t('sidebar.ppr') },
+    { path: '/requests', icon: HiOutlinePencilSquare, label: t('sidebar.requests') },
+    { path: '/warehouse', icon: HiOutlineCube, label: t('sidebar.warehouse') },
+    { path: '/spare-parts', icon: HiOutlineArchiveBox, label: t('sidebar.spareParts') },
+    { path: '/reports', icon: HiOutlineChartBarSquare, label: t('sidebar.reports') },
+    { path: '/references', icon: HiOutlineRectangleStack, label: t('sidebar.references') },
+  ];
+
+  const adminItems = [
+    { path: '/users', icon: HiOutlineUsers, label: t('sidebar.users') },
+    { path: '/excel-import', icon: HiOutlineDocumentArrowUp, label: t('sidebar.excelImport') },
+    { path: '/audit-log', icon: HiOutlineClipboardDocumentList, label: t('sidebar.auditLog') },
+    { path: '/settings', icon: HiOutlineCog6Tooth, label: t('sidebar.settings') },
+  ];
 
   const handleLogout = () => {
     logout();
@@ -44,20 +47,35 @@ export default function Sidebar() {
 
   return (
     <aside className="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-[#0f172a] to-[#1e293b] border-r border-white/5 flex flex-col z-40">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
-          <HiOutlineComputerDesktop className="text-white text-lg" />
+      {/* Logo + til */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/30">
+            <HiOutlineComputerDesktop className="text-white text-lg" />
+          </div>
+          <div>
+            <h2 className="text-white font-bold text-sm tracking-wide">BOSHLIQ</h2>
+            <p className="text-slate-500 text-xs">{t('auth.loginSubtitle')}</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-white font-bold text-sm tracking-wide">BOSHLIQ</h2>
-          <p className="text-slate-500 text-xs">Uskunalar boshqaruvi</p>
+        {/* Til almashtirgich */}
+        <div className="flex rounded-lg bg-white/5 p-0.5">
+          {['uz', 'ru'].map(lang => (
+            <button key={lang} onClick={() => changeLanguage(lang)}
+              className={`px-2 py-1 text-[10px] font-bold rounded-md transition-all ${
+                i18n.language === lang
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}>
+              {lang.toUpperCase()}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Navigatsiya */}
       <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <p className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Asosiy</p>
+        <p className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">{t('sidebar.main')}</p>
         {menuItems.map((item) => (
           <NavLink key={item.path} to={item.path} className={linkClass}>
             <item.icon className="text-lg flex-shrink-0" />

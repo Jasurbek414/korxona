@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuthContext';
+import { useTranslation } from 'react-i18next';
+import { changeLanguage } from '../../i18n';
 import toast from 'react-hot-toast';
 import { HiOutlineUser, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2';
 
@@ -11,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,15 +50,15 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Uskunalar boshqaruvi</h1>
-          <p className="text-blue-200/60 mt-1 text-sm">Tizimga kirish uchun ma'lumotlaringizni kiriting</p>
+          <h1 className="text-2xl font-bold text-white">{t('auth.loginSubtitle')}</h1>
+          <p className="text-blue-200/60 mt-1 text-sm">{t('auth.loginTitle')}</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
           {/* Username */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-blue-100/80 mb-2">Foydalanuvchi nomi</label>
+            <label className="block text-sm font-medium text-blue-100/80 mb-2">{t('auth.username')}</label>
             <div className="relative">
               <HiOutlineUser className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-lg" />
               <input
@@ -71,7 +74,7 @@ export default function LoginPage() {
 
           {/* Password */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-blue-100/80 mb-2">Parol</label>
+            <label className="block text-sm font-medium text-blue-100/80 mb-2">{t('auth.password')}</label>
             <div className="relative">
               <HiOutlineLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-300/50 text-lg" />
               <input
@@ -100,16 +103,29 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Kirish...
+                {t('common.loading')}
               </>
             ) : (
-              'Tizimga kirish'
+              t('auth.loginBtn')
             )}
           </button>
         </form>
 
-        <p className="text-center text-blue-200/30 text-xs mt-6">
-          © {new Date().getFullYear()} Uskunalar boshqaruv tizimi
+        {/* Til almashtirgich */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {['uz', 'ru'].map(lang => (
+            <button key={lang} onClick={() => changeLanguage(lang)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                i18n.language === lang
+                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/30'
+                  : 'text-blue-200/30 hover:text-blue-200/60'
+              }`}>
+              {lang === 'uz' ? "O'zbekcha" : 'Русский'}
+            </button>
+          ))}
+        </div>
+        <p className="text-center text-blue-200/30 text-xs mt-3">
+          © {new Date().getFullYear()} {t('auth.loginSubtitle')}
         </p>
       </div>
     </div>
