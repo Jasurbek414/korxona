@@ -83,7 +83,7 @@ export default function Sidebar() {
 
       {/* Profil */}
       <div className="p-3 border-t border-white/5">
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition">
+        <NavLink to="/profile" className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition no-underline">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
             {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
           </div>
@@ -91,12 +91,12 @@ export default function Sidebar() {
             <p className="text-white text-sm font-semibold truncate">{user?.fullName}</p>
             <p className="text-slate-500 text-xs">{user?.role === 'ADMIN' ? '👑 Administrator' : user?.role}</p>
           </div>
-          <button onClick={handleLogout}
+          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLogout(); }}
             className="text-slate-500 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-white/5"
             title="Chiqish">
             <HiOutlineArrowRightOnRectangle className="text-lg" />
           </button>
-        </div>
+        </NavLink>
       </div>
     </aside>
   );
