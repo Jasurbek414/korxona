@@ -22,4 +22,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
     long countByStatusIdAndIsDeletedFalse(Long statusId);
 
     List<Equipment> findAllByCategoryIdAndIsDeletedFalse(Long categoryId);
+
+    long countByCategoryIdAndIsDeletedFalse(Long categoryId);
 }
