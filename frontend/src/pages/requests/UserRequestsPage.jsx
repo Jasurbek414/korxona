@@ -20,7 +20,7 @@ import {
 
 const STATUS_MAP = {
   NEW: { badge: '#3b82f6', bg: '#eff6ff', icon: <HiOutlineSparkles />, label: 'Yangi' },
-  IN_REVIEW: { badge: '#eab308', bg: '#fef9c3', icon: <HiOutlineMagnifyingGlass />, label: "Ko'rib chiqilmoqda" },
+  REVIEWING: { badge: '#eab308', bg: '#fef9c3', icon: <HiOutlineMagnifyingGlass />, label: "Ko'rib chiqilmoqda" },
   APPROVED: { badge: '#10b981', bg: '#ecfdf5', icon: <HiOutlineCheckCircle />, label: 'Tasdiqlangan' },
   REJECTED: { badge: '#ef4444', bg: '#fef2f2', icon: <HiOutlineXCircle />, label: 'Rad etilgan' },
   COMPLETED: { badge: '#059669', bg: '#d1fae5', icon: <HiOutlineFlag />, label: 'Bajarildi' },
@@ -28,8 +28,7 @@ const STATUS_MAP = {
 
 const REQUEST_TYPES = [
   { value: 'REPAIR', label: "Ta'mirlash so'rovi" },
-  { value: 'SPARE_PART', label: "Ehtiyot qism so'rovi" },
-  { value: 'TRANSFER', label: "Uskuna ko'chirish" },
+  { value: 'REPLACE', label: "Uskunani almashtirish" },
   { value: 'OTHER', label: 'Boshqa' },
 ];
 
@@ -127,7 +126,7 @@ const CustomSelect = ({ value, onChange, options, defaultLabel }) => {
 
 export default function UserRequestsPage() {
   const { user } = useAuthContext();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'OPERATOR';
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,7 +154,12 @@ export default function UserRequestsPage() {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await userRequestService.create(form);
+      const payload = {
+        equipmentId: Number(form.equipmentId),
+        requestType: form.type,
+        description: `Mavzu: ${form.subject}\nUstuvorlik: ${PRIORITIES.find(p=>p.value===form.priority)?.label || 'O\'rta'}\n\n${form.description}`
+      };
+      await userRequestService.create(payload);
       toast.success("Ariza yuborildi");
       setShowModal(false);
       setForm({ type: 'REPAIR', subject: '', description: '', priority: 'NORMAL', equipmentId: '' });
@@ -167,7 +171,7 @@ export default function UserRequestsPage() {
 
   const handleStatusChange = async (id, status, comment) => {
     try {
-      await userRequestService.updateStatus(id, { status, comment });
+      await userRequestService.updateStatus(id, { status, responseNotes: comment });
       toast.success("Status yangilandi");
       fetchRequests();
     } catch { toast.error("Xato"); }
@@ -176,7 +180,7 @@ export default function UserRequestsPage() {
   const statusCounts = {
     ALL: requests.length,
     NEW: requests.filter(r => r.status === 'NEW').length,
-    IN_REVIEW: requests.filter(r => r.status === 'IN_REVIEW').length,
+    REVIEWING: requests.filter(r => r.status === 'REVIEWING').length,
     APPROVED: requests.filter(r => r.status === 'APPROVED').length,
     REJECTED: requests.filter(r => r.status === 'REJECTED').length,
   };
@@ -211,7 +215,7 @@ export default function UserRequestsPage() {
         {Object.entries({ 
           ALL: { label: 'Barchasi' }, 
           NEW: { icon: <HiOutlineSparkles style={{ fontSize: '18px' }} />, label: 'Yangi' }, 
-          IN_REVIEW: { icon: <HiOutlineMagnifyingGlass style={{ fontSize: '18px' }} />, label: "Ko'rib chiqilmoqda" }, 
+          REVIEWING: { icon: <HiOutlineMagnifyingGlass style={{ fontSize: '18px' }} />, label: "Ko'rib chiqilmoqda" }, 
           APPROVED: { icon: <HiOutlineCheckCircle style={{ fontSize: '18px' }} />, label: 'Tasdiqlangan' }, 
           REJECTED: { icon: <HiOutlineXCircle style={{ fontSize: '18px' }} />, label: 'Rad etilgan' } 
         }).map(([key, { icon, label }]) => (
@@ -230,7 +234,7 @@ export default function UserRequestsPage() {
               background: filter === key ? 'rgba(255,255,255,0.2)' : '#f1f5f9',
               color: filter === key ? '#fff' : '#64748b'
             }}>
-              {statusCounts[key]}
+              {statusCounts[key] || 0}
             </span>
           </button>
         ))}
@@ -251,7 +255,6 @@ export default function UserRequestsPage() {
         ) : (
           filtered.map((req, i) => {
             const st = STATUS_MAP[req.status] || STATUS_MAP.NEW;
-            const priority = PRIORITIES.find(p => p.value === req.priority) || PRIORITIES[1];
             return (
               <div key={req.id} className="animate-fade-in hover:-translate-y-1 hover:shadow-xl" style={{ animationDelay: `${i * 40}ms`, background: '#fff', borderRadius: '20px', padding: '24px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', transition: 'all 0.3s', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                 
@@ -263,41 +266,38 @@ export default function UserRequestsPage() {
                 {/* O'rta — tafsilot */}
                 <div style={{ flex: 1, minWidth: '300px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{req.subject}</h3>
+                    <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>ID: {req.requestNumber || req.id}</h3>
                     <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, backgroundColor: st.bg, color: st.badge }}>
                       {st.label}
                     </span>
-                    <span style={{ padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, backgroundColor: priority.bg, color: priority.color }}>
-                      {priority.label}
-                    </span>
                   </div>
                   
-                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', whiteSpace: 'pre-wrap' }}>
                     {req.description}
                   </p>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                      <HiOutlineClipboardDocumentList style={{ fontSize: '18px' }} /> {REQUEST_TYPES.find(t => t.value === req.type)?.label || req.type}
+                      <HiOutlineClipboardDocumentList style={{ fontSize: '18px' }} /> {REQUEST_TYPES.find(t => t.value === req.requestType)?.label || req.requestType || 'Ariza'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                      <HiOutlineUser style={{ fontSize: '18px' }} /> {req.createdByName || 'Noma\'lum'}
+                      <HiOutlineUser style={{ fontSize: '18px' }} /> {req.requestedByName || 'Noma\'lum'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
                       <HiOutlineCalendar style={{ fontSize: '18px' }} /> {req.createdAt?.slice(0, 16).replace('T', ' ')}
                     </div>
                     {req.equipmentId && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 600 }}>
-                        <HiOutlineWrenchScrewdriver style={{ fontSize: '18px' }} /> ID: {req.equipmentId}
+                        <HiOutlineWrenchScrewdriver style={{ fontSize: '18px' }} /> {req.equipmentName || req.equipmentId}
                       </div>
                     )}
                   </div>
 
-                  {req.adminComment && (
+                  {req.responseNotes && (
                     <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '12px', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#334155', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                       <HiOutlineChatBubbleLeftEllipsis style={{ fontSize: '20px', color: '#3b82f6', flexShrink: 0, marginTop: '2px' }} />
                       <div>
-                        <span style={{ fontWeight: 800, color: '#0f172a', marginRight: '6px' }}>Admin izohi:</span> {req.adminComment}
+                        <span style={{ fontWeight: 800, color: '#0f172a', marginRight: '6px' }}>Admin izohi:</span> {req.responseNotes}
                       </div>
                     </div>
                   )}
@@ -306,15 +306,18 @@ export default function UserRequestsPage() {
                 {/* O'ng — admin amallar */}
                 {isAdmin && req.status === 'NEW' && (
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                    <button onClick={() => handleStatusChange(req.id, 'IN_REVIEW', '')}
+                    <button onClick={() => handleStatusChange(req.id, 'REVIEWING', '')}
                       style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#fff', color: '#334155', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-slate-50">
                       <HiOutlineMagnifyingGlass style={{ fontSize: '18px' }} /> Ko'rish
                     </button>
                   </div>
                 )}
-                {isAdmin && req.status === 'IN_REVIEW' && (
+                {isAdmin && req.status === 'REVIEWING' && (
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                    <button onClick={() => handleStatusChange(req.id, 'APPROVED', 'Tasdiqlandi')}
+                    <button onClick={() => {
+                      const note = prompt("Tasdiqlash izohi (ixtiyoriy):");
+                      if (note !== null) handleStatusChange(req.id, 'APPROVED', note);
+                    }}
                       style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 24px', borderRadius: '12px', border: 'none', background: '#10b981', color: '#fff', fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(16,185,129,0.3)' }} className="hover:-translate-y-1">
                       <HiOutlineCheckCircle style={{ fontSize: '18px' }} /> Tasdiqlash
                     </button>
