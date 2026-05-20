@@ -25,7 +25,10 @@ import { Toaster } from 'react-hot-toast';
 export default function App() {
   return (
     <BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" toastOptions={{
+        duration: 3000,
+        style: { borderRadius: '12px', background: '#1e293b', color: '#fff', fontSize: '14px' },
+      }} />
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
