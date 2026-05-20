@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import uz.boshliq.equipment.entity.Equipment;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,4 +20,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Jpa
     long countByIsDeletedFalse();
 
     long countByStatusIdAndIsDeletedFalse(Long statusId);
+
+    List<Equipment> findAllByCategoryIdAndIsDeletedFalse(Long categoryId);
 }
