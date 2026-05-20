@@ -69,8 +69,8 @@ export default function Sidebar() {
       </div>
 
       {/* Navigatsiya */}
-      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <p className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">{t('sidebar.main')}</p>
+      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto scrollbar-hide">
+        <p className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('sidebar.main')}</p>
         {menuItems.map((item) => (
           <NavLink key={item.path} to={item.path} className={linkClass}>
             <item.icon className="text-lg flex-shrink-0" />
@@ -81,7 +81,7 @@ export default function Sidebar() {
         {isAdmin && (
           <>
             <div className="divider !my-4 !bg-white/5" />
-            <p className="px-4 py-2 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            <p className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               Administrator
             </p>
             {adminItems.map((item) => (

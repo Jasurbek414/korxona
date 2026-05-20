@@ -78,16 +78,16 @@ export default function DashboardPage() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-2xl font-bold text-slate-800">
+        <div className="flex items-center gap-3 mb-1.5">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             Xush kelibsiz, <span className="gradient-text">{user?.fullName || 'Foydalanuvchi'}</span> 👋
           </h1>
         </div>
-        <p className="text-slate-500">Boshqaruv paneli — tizimning umumiy holati</p>
+        <p className="text-slate-500 font-medium">Boshqaruv paneli — tizimning umumiy holati</p>
       </div>
 
       {/* 5 KPI kartalari (TZ 5.2) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
         {kpiCards.map((card, i) => (
           <div key={i} className="stat-card group animate-fade-in" style={{ animationDelay: `${i * 70}ms` }}>
             <div className={`stat-card::before ${card.bgDecor}`} />
@@ -102,62 +102,69 @@ export default function DashboardPage() {
                 </span>
               )}
             </div>
-            <p className="text-3xl font-extrabold text-slate-800 tracking-tight">
+            <p className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {loading ? <span className="skeleton inline-block w-16 h-8" /> : card.value}
             </p>
-            <p className="text-sm font-semibold text-slate-700 mt-1">{card.label}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{card.sub}</p>
+            <p className="text-sm font-bold text-slate-700 mt-1">{card.label}</p>
+            <p className="text-[11px] font-medium text-slate-400 mt-1 uppercase tracking-wide">{card.sub}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* PPR doiraviy grafik (TZ 5.2 — Grafik 2) */}
-        <div className="card p-6">
-          <h3 className="text-base font-semibold text-slate-800 mb-4">PPR bajarilishi</h3>
-          <div className="flex items-center justify-center">
-            <div className="relative">
-              <svg width="120" height="120" className="transform -rotate-90">
-                <circle cx="60" cy="60" r="40" fill="none" stroke="#f1f5f9" strokeWidth="10" />
-                <circle cx="60" cy="60" r="40" fill="none"
-                  stroke="url(#pprGrad)" strokeWidth="10" strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={circumference - strokeDash}
-                  style={{ transition: 'stroke-dashoffset 1s ease' }} />
+        <div className="bg-white rounded-3xl p-7 border border-[#f1f5f9] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-lg">
+          <h3 className="text-[15px] font-bold text-slate-800 mb-6 uppercase tracking-wider">PPR bajarilishi</h3>
+          <div className="flex items-center justify-center mb-2">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-colors duration-500" />
+              <svg width="140" height="140" className="transform -rotate-90 relative z-10">
+                <circle cx="70" cy="70" r="50" fill="none" stroke="#f8fafc" strokeWidth="12" />
+                <circle cx="70" cy="70" r="50" fill="none"
+                  stroke="url(#pprGrad)" strokeWidth="12" strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 50}
+                  strokeDashoffset={2 * Math.PI * 50 - ((pprPercent / 100) * 2 * Math.PI * 50)}
+                  style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }} />
                 <defs>
                   <linearGradient id="pprGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="100%" stopColor="#059669" />
+                    <stop offset="100%" stopColor="#047857" />
                   </linearGradient>
                 </defs>
               </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-slate-800">{pprPercent}%</span>
-                <span className="text-xs text-slate-400">bajarildi</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                <span className="text-3xl font-extrabold text-slate-800 tracking-tight">{pprPercent}%</span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 mt-1">bajarildi</span>
               </div>
             </div>
           </div>
-          <div className="flex justify-between mt-4 text-sm">
-            <span className="text-slate-500">Jami: <strong className="text-slate-700">{kpi?.pprTotalTasks || 0}</strong></span>
-            <span className="text-emerald-600">Bajarilgan: <strong>{kpi?.pprCompletedTasks || 0}</strong></span>
+          <div className="flex justify-between mt-6 pt-5 border-t border-slate-100 text-sm">
+            <div className="flex flex-col items-center flex-1 border-r border-slate-100">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-1">Jami vazifa</span>
+              <span className="text-lg font-bold text-slate-700">{kpi?.pprTotalTasks || 0}</span>
+            </div>
+            <div className="flex flex-col items-center flex-1">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-500/70 mb-1">Bajarilgan</span>
+              <span className="text-lg font-bold text-emerald-600">{kpi?.pprCompletedTasks || 0}</span>
+            </div>
           </div>
         </div>
 
         {/* Tezkor amallar */}
-        <div className="card p-6 lg:col-span-2">
-          <h3 className="text-base font-semibold text-slate-800 mb-4">Tezkor amallar</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="bg-white rounded-3xl p-7 border border-[#f1f5f9] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] lg:col-span-2 transition-all duration-300 hover:shadow-lg">
+          <h3 className="text-[15px] font-bold text-slate-800 mb-6 uppercase tracking-wider">Tezkor amallar</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {quickActions.map((action, i) => (
               <a key={i} href={action.href}
-                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 group ${action.colors}`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${action.iconColor} bg-white/70 shadow-sm group-hover:scale-110 transition-transform`}>
-                  <action.icon className="text-lg" />
+                className={`flex items-center gap-4 p-5 rounded-2xl border transition-all duration-300 group ${action.colors} hover:shadow-md hover:-translate-y-1`}>
+                <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${action.iconColor} bg-white shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+                  <action.icon className="text-xl" />
                 </div>
                 <div className="flex-1">
-                  <p className={`text-sm font-semibold ${action.text}`}>{action.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{action.desc}</p>
+                  <p className={`text-[15px] font-bold tracking-wide ${action.text}`}>{action.label}</p>
+                  <p className="text-[11px] font-medium text-slate-500 mt-0.5 tracking-wide">{action.desc}</p>
                 </div>
-                <HiOutlineChevronRight className={`text-sm ${action.iconColor} opacity-40 group-hover:opacity-100 transition`} />
+                <HiOutlineChevronRight className={`text-lg ${action.iconColor} opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300`} />
               </a>
             ))}
           </div>

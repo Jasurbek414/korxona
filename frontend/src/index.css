@@ -50,6 +50,14 @@ body {
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* ============= ANIMATIONS ============= */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -277,8 +285,9 @@ body {
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   background: white;
-  border: 1px solid var(--border-color);
-  transition: all 0.3s;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .stat-card::before {
   content: '';
