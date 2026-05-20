@@ -58,13 +58,13 @@ export default function LoginPage() {
         </div>
 
         {/* Premium Glassmorphic Form Card */}
-        <form onSubmit={handleSubmit} style={{ padding: '2.5rem' }} className="bg-[#0F172A]/40 backdrop-blur-[32px] border border-white/[0.08] rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] relative">
+        <form onSubmit={handleSubmit} style={{ padding: '2.5rem' }} className="flex flex-col gap-7 bg-[#0F172A]/40 backdrop-blur-[32px] border border-white/[0.08] rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] relative">
           {/* Top subtle highlight border */}
           <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-blue-400/20 to-transparent" />
 
           {/* Username Input Field */}
-          <div className="mb-6">
-            <label className="block text-[11px] font-bold text-slate-400/80 uppercase tracking-[0.15em] mb-2.5 ml-1">
+          <div className="flex flex-col gap-3">
+            <label className="block text-[11px] font-bold text-slate-400/80 uppercase tracking-[0.15em] ml-1">
               {t('auth.username')}
             </label>
             <div className="relative group">
@@ -76,16 +76,16 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="admin"
-                style={{ paddingLeft: '3.25rem', paddingRight: '1rem' }}
-                className="w-full py-4 bg-black/20 border border-white/[0.05] rounded-2xl text-white placeholder:text-slate-500/50 focus:outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/20 focus:bg-black/40 transition-all duration-300 text-[15px]"
+                style={{ padding: '1rem', paddingLeft: '3.25rem' }}
+                className="w-full bg-black/20 border border-white/[0.05] rounded-2xl text-white placeholder:text-slate-500/50 focus:outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/20 focus:bg-black/40 transition-all duration-300 text-[15px]"
                 autoFocus
               />
             </div>
           </div>
 
           {/* Password Input Field */}
-          <div className="mb-8">
-            <label className="block text-[11px] font-bold text-slate-400/80 uppercase tracking-[0.15em] mb-2.5 ml-1">
+          <div className="flex flex-col gap-3">
+            <label className="block text-[11px] font-bold text-slate-400/80 uppercase tracking-[0.15em] ml-1">
               {t('auth.password')}
             </label>
             <div className="relative group">
@@ -97,8 +97,8 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                style={{ paddingLeft: '3.25rem', paddingRight: '3.25rem' }}
-                className="w-full py-4 bg-black/20 border border-white/[0.05] rounded-2xl text-white placeholder:text-slate-500/50 focus:outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/20 focus:bg-black/40 transition-all duration-300 text-[15px] font-medium tracking-wide"
+                style={{ padding: '1rem', paddingLeft: '3.25rem', paddingRight: '3.25rem' }}
+                className="w-full bg-black/20 border border-white/[0.05] rounded-2xl text-white placeholder:text-slate-500/50 focus:outline-none focus:border-blue-500/50 focus:ring-[3px] focus:ring-blue-500/20 focus:bg-black/40 transition-all duration-300 text-[15px] font-medium tracking-wide"
               />
               <button
                 type="button"
@@ -114,7 +114,8 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold rounded-2xl shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(37,99,235,0.5)] transform active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer text-[15px] tracking-wide relative overflow-hidden"
+            style={{ padding: '1.125rem' }}
+            className="w-full mt-2 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold rounded-2xl shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(37,99,235,0.5)] transform active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer text-[15px] tracking-wide relative overflow-hidden"
           >
             {/* Inner button highlight */}
             <div className="absolute top-0 inset-x-0 h-[1px] bg-white/30" />
