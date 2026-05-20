@@ -65,6 +65,16 @@ services:
     volumes:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
 
+  # ====== Cloudflare Tunnel ======
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: boshliq-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiMDI5NDc1MzY0YWNjNDEzY2Q2Y2YzNWVkOGU0MjEzNGIiLCJ0IjoiNGMyYmQ4NmUtNjFmNC00Yzg2LWE1MWUtMmM0ZjY1OTM3NzNiIiwicyI6Ill6bGhORFkyT0dFdE5UZzRZaTAwTW1VNUxXSXlaV1V0TkRGak1HUTJaR1ZsTkRReiJ9
+    depends_on:
+      - backend
+      - frontend
+
 volumes:
   postgres_data:
   uploads_data:
