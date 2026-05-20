@@ -9,11 +9,15 @@ import {
   HiOutlineClipboardDocumentList,
   HiOutlineArrowRightOnRectangle,
   HiOutlineCog6Tooth,
+  HiOutlineWrenchScrewdriver,
+  HiOutlineCube,
 } from 'react-icons/hi2';
 
 const menuItems = [
   { path: '/dashboard', icon: HiOutlineSquares2X2, label: 'Boshqaruv paneli' },
   { path: '/equipment', icon: HiOutlineComputerDesktop, label: 'Uskunalar' },
+  { path: '/ppr', icon: HiOutlineWrenchScrewdriver, label: 'PPR vazifalari' },
+  { path: '/warehouse', icon: HiOutlineCube, label: 'Ombor hisobi' },
   { path: '/references', icon: HiOutlineRectangleStack, label: "Ma'lumotnomalar" },
 ];
 

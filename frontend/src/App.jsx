@@ -8,6 +8,8 @@ import EquipmentListPage from './pages/equipment/EquipmentListPage';
 import EquipmentFormPage from './pages/equipment/EquipmentFormPage';
 import ReferencesPage from './pages/references/ReferencesPage';
 import UsersPage from './pages/dashboard/UsersPage';
+import PprTaskListPage from './pages/ppr/PprTaskListPage';
+import WarehousePage from './pages/warehouse/WarehousePage';
 
 export default function App() {
   return (
@@ -31,6 +33,12 @@ export default function App() {
             <Route path="/equipment" element={<EquipmentListPage />} />
             <Route path="/equipment/new" element={<EquipmentFormPage />} />
             <Route path="/equipment/:id/edit" element={<EquipmentFormPage />} />
+
+            {/* PPR (TZ 3.1-3.12) */}
+            <Route path="/ppr" element={<PprTaskListPage />} />
+
+            {/* Ombor (TZ 4.1-4.5) */}
+            <Route path="/warehouse" element={<WarehousePage />} />
 
             {/* Ma'lumotnomalar */}
             <Route path="/references" element={<ReferencesPage />} />

@@ -71,3 +71,86 @@ export const auditLogService = {
   getByUser: (userId, params) => api.get(`/audit-log/by-user/${userId}`, { params }),
   getByAction: (action, params) => api.get(`/audit-log/by-action/${action}`, { params }),
 };
+
+// ====== PPR (TZ 3.1-3.12) ======
+export const pprService = {
+  // Vazifalar
+  getTasks: (params) => api.get('/ppr/tasks', { params }),
+  getTask: (id) => api.get(`/ppr/tasks/${id}`),
+  getCalendar: (from, to) => api.get('/ppr/tasks/calendar', { params: { from, to } }),
+  getOverdue: () => api.get('/ppr/tasks/overdue'),
+  createTask: (data) => api.post('/ppr/tasks', data),
+  updateTask: (id, data) => api.put(`/ppr/tasks/${id}`, data),
+  changeStatus: (id, status, completionNotes) => api.patch(`/ppr/tasks/${id}/status`, { status, completionNotes }),
+  reschedule: (id, data) => api.post(`/ppr/tasks/${id}/reschedule`, data),
+  getRescheduleHistory: (id) => api.get(`/ppr/tasks/${id}/reschedule-history`),
+  deleteTask: (id) => api.delete(`/ppr/tasks/${id}`),
+
+  // Chek-list
+  getChecklist: (taskId) => api.get(`/ppr/tasks/${taskId}/checklist`),
+  addChecklistItem: (taskId, data) => api.post(`/ppr/tasks/${taskId}/checklist`, data),
+  toggleChecklistItem: (taskId, itemId, notes) => api.patch(`/ppr/tasks/${taskId}/checklist/${itemId}/toggle`, { notes }),
+
+  // Izohlar
+  getComments: (taskId) => api.get(`/ppr/tasks/${taskId}/comments`),
+  addComment: (taskId, commentText) => api.post(`/ppr/tasks/${taskId}/comments`, { commentText }),
+
+  // Vaqt hisobi
+  getTimeEntries: (taskId) => api.get(`/ppr/tasks/${taskId}/time-entries`),
+  addTimeEntry: (taskId, data) => api.post(`/ppr/tasks/${taskId}/time-entries`, data),
+  getTotalTime: (taskId) => api.get(`/ppr/tasks/${taskId}/total-time`),
+
+  // PPR turlari
+  getTypes: () => api.get('/ppr-types'),
+  createType: (data) => api.post('/ppr-types', data),
+  updateType: (id, data) => api.put(`/ppr-types/${id}`, data),
+  deleteType: (id) => api.delete(`/ppr-types/${id}`),
+
+  // Intervallar
+  getIntervals: () => api.get('/ppr/intervals'),
+  getIntervalsByEquipment: (eqId) => api.get(`/ppr/intervals/equipment/${eqId}`),
+  createInterval: (data) => api.post('/ppr/intervals', data),
+  updateInterval: (id, data) => api.put(`/ppr/intervals/${id}`, data),
+  deleteInterval: (id) => api.delete(`/ppr/intervals/${id}`),
+  generateTasks: () => api.post('/ppr/intervals/generate'),
+};
+
+// ====== Ombor (TZ 4.1-4.5) ======
+export const warehouseService = {
+  getStockByWarehouse: (whId) => api.get(`/warehouse/stocks/${whId}`),
+  getStockBySparePart: (spId) => api.get(`/warehouse/stocks/spare-part/${spId}`),
+  getLowStockAlerts: () => api.get('/warehouse/alerts/low-stock'),
+  getOperations: (params) => api.get('/warehouse/operations', { params }),
+  incoming: (data) => api.post('/warehouse/incoming', data),
+  outgoing: (data) => api.post('/warehouse/outgoing', data),
+  transfer: (data) => api.post('/warehouse/transfer', data),
+  writeOff: (data) => api.post('/warehouse/write-off', data),
+};
+
+// ====== Hisobotlar (TZ 5.1-5.2) ======
+export const reportService = {
+  getDashboardKpi: () => api.get('/reports/dashboard'),
+  getEquipmentStatus: () => api.get('/reports/equipment-status'),
+  getPprPerformance: (dateFrom, dateTo) => api.get('/reports/ppr-performance', { params: { dateFrom, dateTo } }),
+  getOverdueTasks: () => api.get('/reports/overdue-tasks'),
+  getSparePartUsage: (dateFrom, dateTo) => api.get('/reports/spare-part-usage', { params: { dateFrom, dateTo } }),
+  getWarehouseStock: () => api.get('/reports/warehouse-stock'),
+};
+
+// ====== Arizalar (TZ 3.8) ======
+export const requestService = {
+  getAll: (params) => api.get('/requests', { params }),
+  getMy: (params) => api.get('/requests/my', { params }),
+  getById: (id) => api.get(`/requests/${id}`),
+  create: (data) => api.post('/requests', data),
+  changeStatus: (id, data) => api.patch(`/requests/${id}/status`, data),
+  delete: (id) => api.delete(`/requests/${id}`),
+};
+
+// ====== Excel import (TZ 4.7) ======
+export const importService = {
+  importEquipment: (formData) => api.post('/import/equipment', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  importSpareParts: (formData) => api.post('/import/spare-parts', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  downloadTemplate: (type) => api.get(`/import/template/${type}`, { responseType: 'blob' }),
+};
+
