@@ -134,18 +134,18 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-6 items-center">
           {/* Language Switcher (Segmented Control) */}
-          <div className="flex items-center p-1 bg-black/20 border border-white/[0.05] rounded-full">
+          <div className="flex items-center p-1 gap-1.5 bg-black/20 border border-white/[0.05] rounded-full">
             {['uz', 'ru'].map(lang => (
               <button
                 key={lang}
                 onClick={() => changeLanguage(lang)}
-                className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-[0.1em] uppercase transition-all duration-300 cursor-pointer ${
+                className={`flex items-center justify-center px-4 h-8 rounded-full text-[10px] font-bold tracking-[0.1em] uppercase transition-all duration-300 cursor-pointer ${
                   i18n.language === lang
-                    ? 'bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.15)]'
-                    : 'text-slate-500 hover:text-slate-300'
+                    ? 'bg-blue-600/40 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]'
+                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
                 }`}
               >
-                {lang === 'uz' ? "O'ZBEKCHA" : 'РУССКИЙ'}
+                <span className="pt-[2px] leading-none">{lang === 'uz' ? "O'ZBEKCHA" : 'РУССКИЙ'}</span>
               </button>
             ))}
           </div>
