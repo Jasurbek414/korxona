@@ -2,8 +2,15 @@ import { useState, useEffect } from 'react';
 import { reportService } from '../../services/dataService';
 import toast from 'react-hot-toast';
 import {
-  HiOutlineComputerDesktop, HiOutlineWrenchScrewdriver,
-  HiOutlineExclamationTriangle, HiOutlineCube, HiOutlineDocumentArrowDown
+  HiOutlineComputerDesktop, 
+  HiOutlineWrenchScrewdriver,
+  HiOutlineExclamationTriangle, 
+  HiOutlineCube, 
+  HiOutlineDocumentArrowDown,
+  HiOutlineChartBar,
+  HiOutlineArrowDownTray,
+  HiOutlineCheckCircle,
+  HiOutlineCalendar
 } from 'react-icons/hi2';
 
 const TABS = [
@@ -73,60 +80,82 @@ export default function ReportsPage() {
   const needsDateFilter = ['ppr', 'spare'].includes(activeTab);
   const canExport = EXPORTABLE.includes(activeTab);
 
+  const inputStyle = { padding: '10px 16px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#334155', outline: 'none', transition: 'all 0.3s' };
+
   return (
-    <div className="animate-fade-in">
+    <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">📊 Hisobotlar</h1>
-          <p className="text-sm text-slate-500 mt-1">Tizimning analitik ko'rsatkichlari</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(59,130,246,0.3)' }}>
+            <HiOutlineChartBar style={{ color: '#fff', fontSize: '28px' }} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', tracking: 'tight' }}>Hisobotlar</h1>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Tizimning analitik ko'rsatkichlari
+            </p>
+          </div>
         </div>
         {canExport && data && (
-          <button onClick={handleExport} disabled={exporting} className="btn btn-success btn-sm">
+          <button onClick={handleExport} disabled={exporting}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, cursor: exporting ? 'not-allowed' : 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.3)', transition: 'all 0.3s', opacity: exporting ? 0.7 : 1 }}
+            className="hover:-translate-y-1 hover:shadow-lg"
+          >
             {exporting ? (
-              <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Yuklanmoqda...</>
+              <><div className="animate-spin" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} /> Yuklanmoqda...</>
             ) : (
-              <>📥 Excel yuklab olish</>
+              <><HiOutlineArrowDownTray style={{ fontSize: '20px' }} /> Excel yuklab olish</>
             )}
           </button>
         )}
       </div>
 
       {/* Tablar */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-        {TABS.map(t => (
-          <button key={t.key} onClick={() => setActiveTab(t.key)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-              activeTab === t.key
-                ? 'text-white shadow-lg'
-                : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-            }`}
-            style={activeTab === t.key ? { background: t.bg, boxShadow: `0 4px 14px -2px ${t.bg}40` } : {}}>
-            <t.icon className="text-base" />
-            {t.label}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', overflowX: 'auto', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+        {TABS.map(t => {
+          const Icon = t.icon;
+          const isActive = activeTab === t.key;
+          return (
+            <button key={t.key} onClick={() => setActiveTab(t.key)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '16px',
+                fontSize: '14px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', border: 'none', whiteSpace: 'nowrap',
+                background: isActive ? t.bg : '#fff',
+                color: isActive ? '#fff' : '#475569',
+                boxShadow: isActive ? `0 10px 15px -3px ${t.bg}40` : '0 4px 6px -1px rgba(0,0,0,0.05)',
+                border: isActive ? 'none' : '1px solid #cbd5e1'
+              }}>
+              <Icon style={{ fontSize: '18px' }} /> {t.label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Davr filtri */}
       {needsDateFilter && (
-        <div className="card p-4 mb-6 flex flex-wrap items-center gap-4">
-          <span className="text-sm font-medium text-slate-600">📅 Davr:</span>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="input-field" style={{width:'auto'}} />
-          <span className="text-slate-400">—</span>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="input-field" style={{width:'auto'}} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 24px', background: '#fff', borderRadius: '20px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', marginBottom: '32px', flexWrap: 'wrap' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', fontWeight: 700, color: '#475569' }}>
+            <HiOutlineCalendar style={{ fontSize: '18px' }} /> Davr:
+          </span>
+          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={inputStyle} />
+          <span style={{ color: '#94a3b8', fontWeight: 800 }}>—</span>
+          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={inputStyle} />
         </div>
       )}
 
       {/* Kontent */}
-      <div className="card overflow-hidden">
+      <div style={{ background: '#fff', borderRadius: '24px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', overflow: 'hidden' }}>
         {loading ? (
-          <div className="p-16 text-center">
-            <div className="w-10 h-10 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">Hisobot yuklanmoqda...</p>
+          <div style={{ padding: '80px', textAlign: 'center' }}>
+            <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', margin: '0 auto 16px' }} />
+            <span style={{ color: '#94a3b8', fontSize: '15px', fontWeight: 600 }}>Hisobot yuklanmoqda...</span>
           </div>
         ) : !data ? (
-          <div className="p-16 text-center text-slate-400">Ma'lumot topilmadi</div>
+          <div style={{ padding: '80px', textAlign: 'center' }}>
+            <HiOutlineChartBar style={{ fontSize: '64px', color: '#cbd5e1', margin: '0 auto 16px', display: 'block' }} />
+            <p style={{ color: '#94a3b8', fontSize: '16px', fontWeight: 600, margin: 0 }}>Ma'lumot topilmadi</p>
+          </div>
         ) : (
           <>
             {activeTab === 'equipment' && <EquipmentStatusView data={data} />}
@@ -147,22 +176,22 @@ function EquipmentStatusView({ data }) {
   const total = data.totalEquipment || 1;
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-          <HiOutlineComputerDesktop className="text-white text-lg" />
+    <div style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'linear-gradient(135deg, #3b82f6, #4f46e5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HiOutlineComputerDesktop style={{ color: '#fff', fontSize: '24px' }} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Uskunalar holati</h3>
-          <p className="text-xs text-slate-500">Jami: {data.totalEquipment} ta uskuna</p>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>Uskunalar holati</h3>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0 }}>Jami: {data.totalEquipment} ta uskuna</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'center' }}>
         {/* Doiraviy grafik */}
-        <div className="flex items-center justify-center">
-          <div className="relative">
-            <svg width="200" height="200" viewBox="0 0 200 200">
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <svg width="240" height="240" viewBox="0 0 200 200">
               {(data.byStatus || []).reduce((acc, item, i) => {
                 const pct = (item.count / total) * 100;
                 const circ = 2 * Math.PI * 70;
@@ -175,31 +204,30 @@ function EquipmentStatusView({ data }) {
                     strokeDasharray={`${dash} ${circ - dash}`}
                     strokeDashoffset={-offset}
                     transform="rotate(-90 100 100)"
-                    style={{ transition: 'all 0.8s ease' }} />
+                    style={{ transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)' }} />
                 );
                 return acc;
               }, { elements: [], offset: 0 }).elements}
-              <text x="100" y="95" textAnchor="middle" className="text-3xl font-bold" fill="#1e293b">{data.totalEquipment}</text>
-              <text x="100" y="115" textAnchor="middle" className="text-xs" fill="#94a3b8">uskuna</text>
+              <text x="100" y="105" textAnchor="middle" style={{ fontSize: '40px', fontWeight: 900, fill: '#0f172a' }}>{data.totalEquipment}</text>
+              <text x="100" y="130" textAnchor="middle" style={{ fontSize: '14px', fontWeight: 600, fill: '#64748b' }}>uskuna</text>
             </svg>
           </div>
         </div>
 
         {/* Legenda */}
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {(data.byStatus || []).map((item, i) => {
             const pct = Math.round((item.count / total) * 100);
             return (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: colors[i % colors.length] }} />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-slate-700">{item.statusName}</span>
-                    <span className="text-sm font-bold text-slate-800">{item.count} <span className="text-xs text-slate-400 font-normal">({pct}%)</span></span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: colors[i % colors.length], flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: '#334155' }}>{item.statusName}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>{item.count} <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600 }}>({pct}%)</span></span>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${pct}%`, background: colors[i % colors.length] }} />
+                  <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: colors[i % colors.length], borderRadius: '999px', width: `${pct}%`, transition: 'width 1s ease' }} />
                   </div>
                 </div>
               </div>
@@ -210,18 +238,17 @@ function EquipmentStatusView({ data }) {
 
       {/* Toifa bo'yicha */}
       {data.byCategory?.length > 0 && (
-        <>
-          <div className="divider !my-6" />
-          <h4 className="text-sm font-semibold text-slate-600 mb-3">Toifalar bo'yicha</h4>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div style={{ marginTop: '48px', borderTop: '1px solid #f1f5f9', paddingTop: '32px' }}>
+          <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#475569', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Toifalar bo'yicha</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
             {data.byCategory.map((c, i) => (
-              <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                <p className="text-xl font-bold text-slate-800">{c.count}</p>
-                <p className="text-xs text-slate-500 mt-1">{c.categoryName}</p>
+              <div key={i} style={{ padding: '24px 16px', borderRadius: '20px', background: '#f8fafc', border: '1px solid #e2e8f0', textAlign: 'center', transition: 'all 0.2s' }} className="hover:-translate-y-1 hover:shadow-md">
+                <p style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>{c.count}</p>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0, lineHeight: 1.4 }}>{c.categoryName}</p>
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -229,50 +256,50 @@ function EquipmentStatusView({ data }) {
 
 // =============== 2. PPR BAJARILISHI ===============
 function PprPerformanceView({ data }) {
-  const circumference = 2 * Math.PI * 55;
+  const circumference = 2 * Math.PI * 70;
   const strokeDash = (data.completionRate / 100) * circumference;
   const rateColor = data.completionRate >= 80 ? '#10b981' : data.completionRate >= 50 ? '#f59e0b' : '#ef4444';
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-          <HiOutlineWrenchScrewdriver className="text-white text-lg" />
+    <div style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HiOutlineWrenchScrewdriver style={{ color: '#fff', fontSize: '24px' }} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-800">PPR bajarilishi</h3>
-          <p className="text-xs text-slate-500">{data.dateFrom} — {data.dateTo}</p>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>PPR bajarilishi</h3>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0 }}>{data.dateFrom} — {data.dateTo}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'center' }}>
         {/* Doiraviy progress */}
-        <div className="flex flex-col items-center justify-center">
-          <svg width="160" height="160" className="transform -rotate-90">
-            <circle cx="80" cy="80" r="55" fill="none" stroke="#f1f5f9" strokeWidth="14" />
-            <circle cx="80" cy="80" r="55" fill="none"
-              stroke={rateColor} strokeWidth="14" strokeLinecap="round"
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="200" height="200" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" strokeWidth="20" />
+            <circle cx="100" cy="100" r="70" fill="none"
+              stroke={rateColor} strokeWidth="20" strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={circumference - strokeDash}
               style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' }} />
           </svg>
-          <div className="text-center -mt-24">
-            <span className="text-4xl font-extrabold" style={{ color: rateColor }}>{data.completionRate}%</span>
-            <p className="text-xs text-slate-400 mt-1">bajarilish darajasi</p>
+          <div style={{ textAlign: 'center', marginTop: '-135px', marginBottom: '50px' }}>
+            <span style={{ fontSize: '48px', fontWeight: 900, color: rateColor }}>{data.completionRate}%</span>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', margin: '4px 0 0 0' }}>bajarilish darajasi</p>
           </div>
         </div>
 
         {/* KPI kartalar */}
-        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           {[
-            { label: 'Jami vazifalar', value: data.totalTasks, color: 'bg-blue-50 text-blue-700' },
-            { label: 'Bajarilgan', value: data.completedTasks, color: 'bg-emerald-50 text-emerald-700' },
-            { label: 'Jarayonda', value: data.inProgressTasks, color: 'bg-yellow-50 text-yellow-700' },
-            { label: 'Rejalashtirilgan', value: data.scheduledTasks, color: 'bg-slate-50 text-slate-700' },
+            { label: 'Jami vazifalar', value: data.totalTasks, bg: '#eff6ff', color: '#1d4ed8' },
+            { label: 'Bajarilgan', value: data.completedTasks, bg: '#ecfdf5', color: '#047857' },
+            { label: 'Jarayonda', value: data.inProgressTasks, bg: '#fef3c7', color: '#b45309' },
+            { label: 'Rejalashtirilgan', value: data.scheduledTasks, bg: '#f8fafc', color: '#334155' },
           ].map((item, i) => (
-            <div key={i} className={`p-4 rounded-2xl ${item.color} animate-fade-in`} style={{ animationDelay: `${i * 80}ms` }}>
-              <p className="text-3xl font-extrabold">{item.value}</p>
-              <p className="text-sm font-medium mt-1 opacity-80">{item.label}</p>
+            <div key={i} style={{ padding: '24px', borderRadius: '24px', background: item.bg, color: item.color }} className="animate-fade-in" style={{ animationDelay: `${i * 80}ms`, padding: '24px', borderRadius: '24px', background: item.bg, color: item.color }}>
+              <p style={{ fontSize: '36px', fontWeight: 900, margin: '0 0 8px 0' }}>{item.value}</p>
+              <p style={{ fontSize: '14px', fontWeight: 700, opacity: 0.8, margin: 0 }}>{item.label}</p>
             </div>
           ))}
         </div>
@@ -284,50 +311,56 @@ function PprPerformanceView({ data }) {
 // =============== 3. MUDDATI O'TGAN ===============
 function OverdueView({ data }) {
   const tasks = Array.isArray(data) ? data : [];
+  
+  const thStyle = { padding: '16px 24px', textAlign: 'left', fontSize: '13px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', background: '#f8fafc' };
+  const tdStyle = { padding: '16px 24px', fontSize: '14px', color: '#334155', borderBottom: '1px solid #f1f5f9', fontWeight: 500 };
+
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
-          <HiOutlineExclamationTriangle className="text-white text-lg" />
+    <div style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'linear-gradient(135deg, #ef4444, #e11d48)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HiOutlineExclamationTriangle style={{ color: '#fff', fontSize: '24px' }} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Muddati o'tgan vazifalar</h3>
-          <p className="text-xs text-slate-500">Jami: {tasks.length} ta kechikkan</p>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>Muddati o'tgan vazifalar</h3>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0 }}>Jami: {tasks.length} ta kechikkan</p>
         </div>
       </div>
 
       {tasks.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-4xl mb-2">✅</p>
-          <p className="text-lg font-semibold text-emerald-600">Barcha vazifalar muddatida!</p>
+        <div style={{ textAlign: 'center', padding: '64px' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#d1fae5', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HiOutlineCheckCircle style={{ fontSize: '40px', color: '#059669' }} />
+          </div>
+          <p style={{ color: '#059669', fontSize: '20px', fontWeight: 800, margin: 0 }}>Barcha vazifalar muddatida!</p>
         </div>
       ) : (
-        <div className="table-container">
-          <table>
+        <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '16px' }}>
+          <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Raqam</th>
-                <th>Uskuna</th>
-                <th>Sana</th>
-                <th>Kechikish</th>
-                <th>Mas'ul</th>
-                <th>Ustuvorlik</th>
+                <th style={thStyle}>Raqam</th>
+                <th style={thStyle}>Uskuna</th>
+                <th style={thStyle}>Sana</th>
+                <th style={thStyle}>Kechikish</th>
+                <th style={thStyle}>Mas'ul</th>
+                <th style={thStyle}>Ustuvorlik</th>
               </tr>
             </thead>
             <tbody>
               {tasks.map((t, i) => (
-                <tr key={i}>
-                  <td className="font-mono text-xs font-semibold text-blue-600">{t.taskNumber}</td>
-                  <td className="font-medium text-slate-800">{t.equipmentName}</td>
-                  <td className="text-red-600 font-medium">{t.scheduledDate}</td>
-                  <td>
-                    <span className={`badge ${t.overdueDays > 7 ? 'badge-red' : 'badge-orange'}`}>
+                <tr key={i} className="hover:bg-slate-50" style={{ transition: 'background 0.2s' }}>
+                  <td style={{ ...tdStyle, fontFamily: 'monospace', fontWeight: 700, color: '#2563eb' }}>{t.taskNumber}</td>
+                  <td style={{ ...tdStyle, fontWeight: 700, color: '#0f172a' }}>{t.equipmentName}</td>
+                  <td style={{ ...tdStyle, color: '#dc2626', fontWeight: 700 }}>{t.scheduledDate}</td>
+                  <td style={tdStyle}>
+                    <span style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, background: t.overdueDays > 7 ? '#fecaca' : '#ffedd5', color: t.overdueDays > 7 ? '#991b1b' : '#9a3412' }}>
                       {t.overdueDays} kun
                     </span>
                   </td>
-                  <td className="text-slate-600 text-xs">{t.assignedTo || '—'}</td>
-                  <td>
-                    <span className={`badge ${t.priority === 'CRITICAL' ? 'badge-red' : t.priority === 'HIGH' ? 'badge-orange' : 'badge-blue'}`}>
+                  <td style={{ ...tdStyle, color: '#64748b' }}>{t.assignedTo || '—'}</td>
+                  <td style={tdStyle}>
+                    <span style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 800, background: t.priority === 'CRITICAL' ? '#fecaca' : t.priority === 'HIGH' ? '#ffedd5' : '#dbeafe', color: t.priority === 'CRITICAL' ? '#991b1b' : t.priority === 'HIGH' ? '#9a3412' : '#1e40af' }}>
                       {t.priority}
                     </span>
                   </td>
@@ -346,44 +379,43 @@ function SpareUsageView({ data }) {
   const maxQty = Math.max(...Object.values(data.byPart || { x: 1 }));
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-          <HiOutlineCube className="text-white text-lg" />
+    <div style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'linear-gradient(135deg, #f59e0b, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HiOutlineCube style={{ color: '#fff', fontSize: '24px' }} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Ehtiyot qismlar sarfi</h3>
-          <p className="text-xs text-slate-500">{data.dateFrom} — {data.dateTo}</p>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>Ehtiyot qismlar sarfi</h3>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0 }}>{data.dateFrom} — {data.dateTo}</p>
         </div>
       </div>
 
       {/* KPI */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="p-4 rounded-2xl bg-amber-50 text-amber-700">
-          <p className="text-2xl font-extrabold">{data.totalOperations}</p>
-          <p className="text-xs font-medium mt-1">Operatsiyalar</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ padding: '24px', borderRadius: '24px', background: '#fffbeb', color: '#b45309' }}>
+          <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{data.totalOperations}</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, margin: 0, opacity: 0.9 }}>Operatsiyalar</p>
         </div>
-        <div className="p-4 rounded-2xl bg-blue-50 text-blue-700">
-          <p className="text-2xl font-extrabold">{data.totalQuantity}</p>
-          <p className="text-xs font-medium mt-1">Jami miqdor</p>
+        <div style={{ padding: '24px', borderRadius: '24px', background: '#eff6ff', color: '#1d4ed8' }}>
+          <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{data.totalQuantity}</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, margin: 0, opacity: 0.9 }}>Jami miqdor</p>
         </div>
-        <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-700">
-          <p className="text-2xl font-extrabold">{Number(data.totalSum || 0).toLocaleString()}</p>
-          <p className="text-xs font-medium mt-1">Jami summa (so'm)</p>
+        <div style={{ padding: '24px', borderRadius: '24px', background: '#ecfdf5', color: '#047857' }}>
+          <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{Number(data.totalSum || 0).toLocaleString()}</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, margin: 0, opacity: 0.9 }}>Jami summa (so'm)</p>
         </div>
       </div>
 
       {/* Ustunli grafik */}
       {data.byPart && Object.keys(data.byPart).length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-slate-600">Ehtiyot qism bo'yicha sarfi</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#475569', marginBottom: '8px' }}>Ehtiyot qism bo'yicha sarfi</h4>
           {Object.entries(data.byPart).map(([name, qty], i) => (
-            <div key={i} className="flex items-center gap-3 animate-fade-in" style={{ animationDelay: `${i * 50}ms` }}>
-              <div className="w-36 text-sm text-slate-700 font-medium truncate flex-shrink-0">{name}</div>
-              <div className="flex-1 h-7 bg-slate-100 rounded-lg overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg flex items-center justify-end pr-2 transition-all duration-700"
-                  style={{ width: `${Math.max(8, (qty / maxQty) * 100)}%` }}>
-                  <span className="text-xs font-bold text-white">{qty}</span>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px' }} className="animate-fade-in" style={{ animationDelay: `${i * 50}ms`, display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '180px', fontSize: '14px', color: '#334155', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 0 }}>{name}</div>
+              <div style={{ flex: 1, height: '32px', background: '#f1f5f9', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', background: 'linear-gradient(90deg, #fbbf24, #f97316)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '12px', width: `${Math.max(10, (qty / maxQty) * 100)}%`, transition: 'width 1s ease' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#fff' }}>{qty}</span>
                 </div>
               </div>
             </div>
@@ -396,65 +428,72 @@ function SpareUsageView({ data }) {
 
 // =============== 5. OMBOR QOLDIQLARI ===============
 function StockView({ data }) {
+  const thStyle = { padding: '16px 24px', textAlign: 'left', fontSize: '13px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', background: '#f8fafc' };
+  const tdStyle = { padding: '16px 24px', fontSize: '14px', color: '#334155', borderBottom: '1px solid #f1f5f9', fontWeight: 500 };
+
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-          <HiOutlineDocumentArrowDown className="text-white text-lg" />
+    <div style={{ padding: '32px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HiOutlineDocumentArrowDown style={{ color: '#fff', fontSize: '24px' }} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Ombor qoldiqlari</h3>
-          <p className="text-xs text-slate-500">Jami: {data.totalItems} ta pozitsiya</p>
+          <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>Ombor qoldiqlari</h3>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#64748b', margin: 0 }}>Jami: {data.totalItems} ta pozitsiya</p>
         </div>
       </div>
 
       {/* KPI */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="p-4 rounded-2xl bg-violet-50 text-violet-700">
-          <p className="text-2xl font-extrabold">{data.totalItems}</p>
-          <p className="text-xs font-medium mt-1">Jami pozitsiya</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ padding: '24px', borderRadius: '24px', background: '#f5f3ff', color: '#6d28d9' }}>
+          <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{data.totalItems}</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, margin: 0, opacity: 0.9 }}>Jami pozitsiya</p>
         </div>
-        <div className={`p-4 rounded-2xl ${data.lowStockCount > 0 ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>
-          <p className="text-2xl font-extrabold">{data.lowStockCount}</p>
-          <p className="text-xs font-medium mt-1">Kam qoldiq ogohlantirish</p>
+        <div style={{ padding: '24px', borderRadius: '24px', background: data.lowStockCount > 0 ? '#fef2f2' : '#ecfdf5', color: data.lowStockCount > 0 ? '#b91c1c' : '#047857' }}>
+          <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{data.lowStockCount}</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, margin: 0, opacity: 0.9 }}>Kam qoldiq ogohlantirish</p>
         </div>
       </div>
 
       {/* Kam qoldiqlar jadvali */}
       {data.lowStockItems?.length > 0 && (
-        <>
-          <h4 className="text-sm font-semibold text-red-600 mb-3">⚠️ Kritik qoldiqlar</h4>
-          <div className="table-container">
-            <table>
+        <div style={{ marginTop: '32px' }}>
+          <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 800, color: '#dc2626', marginBottom: '16px' }}>
+            <HiOutlineExclamationTriangle style={{ fontSize: '20px' }} /> Kritik qoldiqlar
+          </h4>
+          <div style={{ overflowX: 'auto', border: '1px solid #fecaca', borderRadius: '16px' }}>
+            <table style={{ width: '100%', minWidth: '800px', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
-                  <th>Ehtiyot qism</th>
-                  <th>Kod</th>
-                  <th>Ombor</th>
-                  <th className="text-right">Joriy</th>
-                  <th className="text-right">Minimal</th>
+                  <th style={{ ...thStyle, background: '#fef2f2', color: '#b91c1c', borderBottom: '2px solid #fecaca' }}>Ehtiyot qism</th>
+                  <th style={{ ...thStyle, background: '#fef2f2', color: '#b91c1c', borderBottom: '2px solid #fecaca' }}>Kod</th>
+                  <th style={{ ...thStyle, background: '#fef2f2', color: '#b91c1c', borderBottom: '2px solid #fecaca' }}>Ombor</th>
+                  <th style={{ ...thStyle, background: '#fef2f2', color: '#b91c1c', borderBottom: '2px solid #fecaca', textAlign: 'right' }}>Joriy</th>
+                  <th style={{ ...thStyle, background: '#fef2f2', color: '#b91c1c', borderBottom: '2px solid #fecaca', textAlign: 'right' }}>Minimal</th>
                 </tr>
               </thead>
               <tbody>
                 {data.lowStockItems.map((item, i) => (
-                  <tr key={i} className="bg-red-50/30">
-                    <td className="font-medium text-slate-800">{item.sparePartName}</td>
-                    <td className="font-mono text-xs text-slate-500">{item.sparePartCode}</td>
-                    <td className="text-slate-600">{item.warehouseName}</td>
-                    <td className="text-right font-bold text-red-600">{item.quantity}</td>
-                    <td className="text-right text-slate-500">{item.minStock}</td>
+                  <tr key={i} style={{ background: '#fef2f2', transition: 'background 0.2s' }} className="hover:bg-red-50">
+                    <td style={{ ...tdStyle, fontWeight: 700, color: '#0f172a', borderBottom: '1px solid #fee2e2' }}>{item.sparePartName}</td>
+                    <td style={{ ...tdStyle, fontFamily: 'monospace', color: '#ef4444', borderBottom: '1px solid #fee2e2' }}>{item.sparePartCode}</td>
+                    <td style={{ ...tdStyle, color: '#475569', fontWeight: 600, borderBottom: '1px solid #fee2e2' }}>{item.warehouseName}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 900, color: '#dc2626', borderBottom: '1px solid #fee2e2' }}>{item.quantity}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', color: '#991b1b', borderBottom: '1px solid #fee2e2' }}>{item.minStock}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </>
+        </div>
       )}
 
       {data.lowStockCount === 0 && (
-        <div className="text-center py-8">
-          <p className="text-4xl mb-2">✅</p>
-          <p className="text-lg font-semibold text-emerald-600">Barcha qoldiqlar me'yorda</p>
+        <div style={{ textAlign: 'center', padding: '48px' }}>
+          <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#d1fae5', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HiOutlineCheckCircle style={{ fontSize: '32px', color: '#059669' }} />
+          </div>
+          <p style={{ color: '#059669', fontSize: '18px', fontWeight: 800, margin: 0 }}>Barcha qoldiqlar me'yorda</p>
         </div>
       )}
     </div>
