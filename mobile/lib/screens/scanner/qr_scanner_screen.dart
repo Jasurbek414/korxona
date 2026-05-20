@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/theme.dart';
+import '../equipment/equipment_screen.dart';
 
 class QrScannerScreen extends StatefulWidget {
   const QrScannerScreen({super.key});
@@ -12,6 +14,7 @@ class QrScannerScreen extends StatefulWidget {
 class _QrScannerScreenState extends State<QrScannerScreen> {
   final _controller = MobileScannerController(detectionSpeed: DetectionSpeed.normal, facing: CameraFacing.back);
   bool _scanned = false;
+  bool _torchOn = false;
 
   @override
   void dispose() {
@@ -27,24 +30,35 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     setState(() => _scanned = true);
 
     final value = barcode!.rawValue!;
-    // QR koddan equipment ID ni olish
-    // Format: {"type":"equipment","id":123}
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('QR kod: $value'),
-        backgroundColor: AppTheme.success,
-        action: SnackBarAction(
-          label: 'Qayta skanerlash',
-          textColor: Colors.white,
-          onPressed: () => setState(() => _scanned = false),
-        ),
-      ),
-    );
 
-    // TODO: parse JSON va navigate to equipment detail
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _scanned = false);
-    });
+    // QR-kod JSON formatini parse qilish
+    try {
+      final data = jsonDecode(value);
+      final type = data['type'] as String?;
+      final id = data['id'] as int?;
+
+      if (type == 'equipment' && id != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => EquipmentDetailScreen(id: id)));
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) setState(() => _scanned = false);
+        });
+        return;
+      }
+    } catch (_) {
+      // JSON emas — oddiy inventar raqami sifatida ko'rsatish
+    }
+
+    // Fallback: oddiy QR kod qiymati
+    if (mounted) {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        builder: (ctx) => _ScanResultSheet(value: value, onClose: () {
+          Navigator.pop(ctx);
+          setState(() => _scanned = false);
+        }),
+      );
+    }
   }
 
   @override
@@ -68,7 +82,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, bottom: 16, left: 20, right: 20),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, bottom: 20, left: 20, right: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -86,25 +100,114 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
             ),
           ),
 
-          // Flashlight button
+          // Quyidagi tugmalar
           Positioned(
-            bottom: 100,
+            bottom: 80,
             left: 0,
             right: 0,
-            child: Center(
-              child: GestureDetector(
-                onTap: () => _controller.toggleTorch(),
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Flashlight
+                GestureDetector(
+                  onTap: () {
+                    _controller.toggleTorch();
+                    setState(() => _torchOn = !_torchOn);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: _torchOn ? Colors.amber.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: _torchOn ? Colors.amber : Colors.white.withValues(alpha: 0.3)),
+                    ),
+                    child: Icon(_torchOn ? Icons.flashlight_on_rounded : Icons.flashlight_off_rounded, color: _torchOn ? Colors.amber : Colors.white, size: 26),
                   ),
-                  child: const Icon(Icons.flashlight_on_rounded, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 24),
+                // Kamerani almashtirish
+                GestureDetector(
+                  onTap: () => _controller.switchCamera(),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                    ),
+                    child: const Icon(Icons.cameraswitch_rounded, color: Colors.white, size: 26),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Skanerlangan animatsiya
+          if (_scanned)
+            Positioned.fill(
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppTheme.success.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 48),
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScanResultSheet extends StatelessWidget {
+  final String value;
+  final VoidCallback onClose;
+  const _ScanResultSheet({required this.value, required this.onClose});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textMuted.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), shape: BoxShape.circle),
+            child: const Icon(Icons.qr_code_2_rounded, color: AppTheme.success, size: 40),
+          ),
+          const SizedBox(height: 16),
+          const Text('QR-kod aniqlandi', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(color: AppTheme.bgMain, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.border)),
+            child: Text(value, style: const TextStyle(fontSize: 14, fontFamily: 'monospace'), textAlign: TextAlign.center),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onClose,
+                  child: const Text('Qayta skanerlash'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: onClose,
+                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  label: const Text('Nusxalash'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -144,9 +247,29 @@ class _ScannerOverlay extends ShapeBorder {
       Paint()..color = Colors.black.withValues(alpha: 0.5),
     );
 
-    // Burchak chiziqlari
-    final paint = Paint()..color = borderColor..strokeWidth = borderWidth..style = PaintingStyle.stroke;
-    canvas.drawRRect(rrect, paint);
+    // Burchak chiziqlari (premium corner lines)
+    final cornerLength = 30.0;
+    final paint = Paint()
+      ..color = borderColor
+      ..strokeWidth = borderWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final l = scanRect.left, t = scanRect.top, r = scanRect.right, b = scanRect.bottom;
+    final rad = 20.0;
+
+    // Yuqori chap
+    canvas.drawPath(Path()..moveTo(l, t + cornerLength)..lineTo(l, t + rad)..arcToPoint(Offset(l + rad, t), radius: Radius.circular(rad)), paint);
+    canvas.drawPath(Path()..moveTo(l + rad, t)..lineTo(l + cornerLength, t), paint);
+    // Yuqori o'ng
+    canvas.drawPath(Path()..moveTo(r - cornerLength, t)..lineTo(r - rad, t)..arcToPoint(Offset(r, t + rad), radius: Radius.circular(rad)), paint);
+    canvas.drawPath(Path()..moveTo(r, t + rad)..lineTo(r, t + cornerLength), paint);
+    // Pastki chap
+    canvas.drawPath(Path()..moveTo(l, b - cornerLength)..lineTo(l, b - rad)..arcToPoint(Offset(l + rad, b), radius: Radius.circular(rad)), paint);
+    canvas.drawPath(Path()..moveTo(l + rad, b)..lineTo(l + cornerLength, b), paint);
+    // Pastki o'ng
+    canvas.drawPath(Path()..moveTo(r - cornerLength, b)..lineTo(r - rad, b)..arcToPoint(Offset(r, b - rad), radius: Radius.circular(rad)), paint);
+    canvas.drawPath(Path()..moveTo(r, b - rad)..lineTo(r, b - cornerLength), paint);
   }
 
   @override
