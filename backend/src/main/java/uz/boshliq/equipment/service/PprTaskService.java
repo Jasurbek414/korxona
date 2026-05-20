@@ -46,6 +46,7 @@ public class PprTaskService {
     // ======================== CRUD ========================
 
     /** Vazifalar ro'yxati — filtr, paginatsiya */
+    @Transactional(readOnly = true)
     public PageResponse<PprTaskResponse> getAll(
             String status, String priority, Long equipmentId,
             Long assignedToId, Long pprTypeId,
@@ -80,17 +81,20 @@ public class PprTaskService {
     }
 
     /** Bitta vazifa */
+    @Transactional(readOnly = true)
     public PprTaskResponse getById(Long id) {
         return toResponse(findOrThrow(id));
     }
 
     /** Kalendar uchun — sana oralig'ida vazifalar (TZ 3.1) */
+    @Transactional(readOnly = true)
     public List<PprTaskResponse> getByDateRange(LocalDate from, LocalDate to) {
         return taskRepository.findAllByScheduledDateBetweenAndIsDeletedFalse(from, to)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     /** Muddati o'tgan ishlar (TZ 3.7) */
+    @Transactional(readOnly = true)
     public List<PprTaskResponse> getOverdue() {
         return taskRepository.findAllByScheduledDateBeforeAndStatusAndIsDeletedFalse(
                         LocalDate.now(), PprTask.TaskStatus.SCHEDULED)
@@ -211,6 +215,7 @@ public class PprTaskService {
     }
 
     /** Ko'chirish tarixi (TZ 3.5) */
+    @Transactional(readOnly = true)
     public List<RescheduleHistoryResponse> getRescheduleHistory(Long taskId) {
         findOrThrow(taskId);
         return rescheduleRepository.findAllByTaskIdOrderByCreatedAtDesc(taskId)

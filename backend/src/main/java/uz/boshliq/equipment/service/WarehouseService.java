@@ -170,24 +170,28 @@ public class WarehouseService {
     // ======================== QOLDIQLAR (TZ 4.2, 4.5) ========================
 
     /** Ombordagi barcha qoldiqlar */
+    @Transactional(readOnly = true)
     public List<StockDto> getStockByWarehouse(Long warehouseId) {
         return stockRepository.findAllByWarehouseId(warehouseId)
                 .stream().map(this::toStockDto).collect(Collectors.toList());
     }
 
     /** Ehtiyot qismning barcha omborlardagi qoldig'i */
+    @Transactional(readOnly = true)
     public List<StockDto> getStockBySparePart(Long sparePartId) {
         return stockRepository.findAllBySparePartId(sparePartId)
                 .stream().map(this::toStockDto).collect(Collectors.toList());
     }
 
     /** Minimal qoldiqdan past bo'lganlar (TZ 4.5) */
+    @Transactional(readOnly = true)
     public List<StockDto> getLowStockAlerts() {
         return stockRepository.findLowStockItems()
                 .stream().map(this::toStockDto).collect(Collectors.toList());
     }
 
     /** Operatsiyalar tarixi */
+    @Transactional(readOnly = true)
     public Page<StockOperationDto> getOperations(Long warehouseId, int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<StockOperation> result;

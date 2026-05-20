@@ -39,6 +39,7 @@ public class EquipmentService {
     /**
      * TZ 2.8: Uskunalar ro'yxati — qidiruv, filtrlash, saralash, paginatsiya
      */
+    @Transactional(readOnly = true)
     public PageResponse<EquipmentResponse> getAll(
             String search,
             Long categoryId,
@@ -83,6 +84,7 @@ public class EquipmentService {
     /**
      * TZ 2.9: Uskuna kartochkasi — batafsil ko'rish
      */
+    @Transactional(readOnly = true)
     public EquipmentResponse getById(Long id) {
         Equipment equipment = findOrThrow(id);
         return toResponse(equipment);
@@ -152,6 +154,7 @@ public class EquipmentService {
     /**
      * TZ 2.10: Status tarixi
      */
+    @Transactional(readOnly = true)
     public List<StatusHistoryResponse> getStatusHistory(Long equipmentId) {
         findOrThrow(equipmentId); // mavjudligini tekshirish
         return statusHistoryRepository.findAllByEquipmentIdOrderByCreatedAtDesc(equipmentId)

@@ -27,18 +27,21 @@ public class UserRequestService {
     private final EquipmentRepository equipmentRepository;
 
     /** Barcha arizalar (admin uchun) */
+    @Transactional(readOnly = true)
     public Page<UserRequestDto> getAll(int page, int size) {
         return requestRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc(PageRequest.of(page, size))
                 .map(this::toDto);
     }
 
     /** Foydalanuvchi o'z arizalari */
+    @Transactional(readOnly = true)
     public Page<UserRequestDto> getByUser(Long userId, int page, int size) {
         return requestRepository.findAllByRequestedByIdAndIsDeletedFalseOrderByCreatedAtDesc(
                 userId, PageRequest.of(page, size)).map(this::toDto);
     }
 
     /** Bitta ariza */
+    @Transactional(readOnly = true)
     public UserRequestDto getById(Long id) {
         return toDto(findOrThrow(id));
     }
