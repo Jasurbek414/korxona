@@ -60,7 +60,8 @@ class AuthNotifier extends Notifier<AuthState> {
         'password': password,
       });
       await _api.saveTokens(res.data['accessToken'], res.data['refreshToken']);
-      state = AuthState(user: User.fromJson(res.data));
+      // Login javobida id kelmaydi, profile endpoint dan to'liq ma'lumot olamiz
+      await loadProfile();
     } catch (e) {
       state = AuthState(error: e.toString());
       rethrow;
@@ -116,4 +117,14 @@ final checklistProvider = FutureProvider.family<List<ChecklistItem>, int>((ref, 
   final api = ref.read(apiProvider);
   final res = await api.dio.get('/ppr/tasks/$taskId/checklist');
   return (res.data as List).map((e) => ChecklistItem.fromJson(e)).toList();
+});
+
+// ===== User Requests =====
+final userRequestsProvider = FutureProvider.family<List<UserRequest>, bool>((ref, isAdmin) async {
+  final api = ref.read(apiProvider);
+  final endpoint = isAdmin ? '/requests' : '/requests/my';
+  final res = await api.dio.get(endpoint);
+  final data = res.data;
+  final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
+  return content.map((e) => UserRequest.fromJson(e)).toList();
 });

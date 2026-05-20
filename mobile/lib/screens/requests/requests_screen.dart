@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme.dart';
 import '../../data/api_client.dart';
+import '../../data/models.dart';
 
 // ===== ARIZALAR RO'YXATI =====
 class RequestsScreen extends ConsumerStatefulWidget {
@@ -12,7 +13,7 @@ class RequestsScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestsScreenState extends ConsumerState<RequestsScreen> {
-  List<dynamic> _requests = [];
+  List<UserRequest> _requests = [];
   bool _loading = true;
 
   @override
@@ -25,7 +26,9 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
     setState(() => _loading = true);
     try {
       final res = await ApiClient().dio.get('/requests/my');
-      _requests = res.data is List ? res.data : (res.data['content'] ?? []);
+      final data = res.data;
+      final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
+      _requests = content.map((e) => UserRequest.fromJson(e)).toList();
     } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
@@ -70,7 +73,7 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
                 : ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
                     itemCount: _requests.length,
-                    itemBuilder: (_, i) => _RequestCard(data: _requests[i]),
+                    itemBuilder: (_, i) => _RequestCard(request: _requests[i]),
                   ),
       ),
     );
@@ -78,37 +81,37 @@ class _RequestsScreenState extends ConsumerState<RequestsScreen> {
 }
 
 class _RequestCard extends StatelessWidget {
-  final dynamic data;
-  const _RequestCard({required this.data});
+  final UserRequest request;
+  const _RequestCard({required this.request});
 
-  Color _statusColor(String? status) => switch (status) {
+  Color _statusColor(String status) => switch (status) {
         'NEW' => AppTheme.info,
-        'IN_REVIEW' => AppTheme.warning,
+        'REVIEWING' => AppTheme.warning,
         'APPROVED' => AppTheme.success,
         'REJECTED' => AppTheme.danger,
+        'COMPLETED' => const Color(0xFF059669),
         _ => AppTheme.textMuted,
       };
 
-  String _statusLabel(String? status) => switch (status) {
+  String _statusLabel(String status) => switch (status) {
         'NEW' => '🆕 Yangi',
-        'IN_REVIEW' => '👁️ Ko\'rilmoqda',
+        'REVIEWING' => '👁️ Ko\'rilmoqda',
         'APPROVED' => '✅ Tasdiqlangan',
         'REJECTED' => '❌ Rad etilgan',
-        _ => status ?? '—',
+        'COMPLETED' => '🏁 Bajarildi',
+        _ => status,
       };
 
-  IconData _typeIcon(String? type) => switch (type) {
+  IconData _typeIcon(String type) => switch (type) {
         'REPAIR' => Icons.build_circle_rounded,
-        'SPARE_PART' => Icons.settings_rounded,
-        'TRANSFER' => Icons.swap_horiz_rounded,
-        _ => Icons.help_outline_rounded,
+        'REPLACE' => Icons.swap_horiz_rounded,
+        'OTHER' => Icons.help_outline_rounded,
+        _ => Icons.assignment_rounded,
       };
 
   @override
   Widget build(BuildContext context) {
-    final status = data['status'] as String?;
-    final type = data['type'] as String?;
-    final sColor = _statusColor(status);
+    final sColor = _statusColor(request.status);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -136,22 +139,46 @@ class _RequestCard extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(13),
                   ),
-                  child: Icon(_typeIcon(type), color: sColor, size: 22),
+                  child: Icon(_typeIcon(request.requestType), color: sColor, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data['subject'] ?? 'Ariza', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                      Row(
+                        children: [
+                          Text(request.requestNumber ?? '#${request.id}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.secondary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(request.typeLabel, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.secondary)),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 4),
-                      Text(data['description'] ?? '', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(request.description ?? '', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, height: 1.3), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      if (request.equipmentName != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.computer_rounded, size: 13, color: AppTheme.textMuted),
+                            const SizedBox(width: 4),
+                            Flexible(child: Text(request.equipmentName!, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          // Footer
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
@@ -163,15 +190,49 @@ class _RequestCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: sColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Text(_statusLabel(status), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: sColor)),
+                  child: Text(_statusLabel(request.status), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: sColor)),
                 ),
                 const Spacer(),
-                Icon(Icons.access_time_rounded, size: 13, color: AppTheme.textMuted),
+                if (request.requestedByName != null) ...[
+                  const Icon(Icons.person_outline_rounded, size: 13, color: AppTheme.textMuted),
+                  const SizedBox(width: 4),
+                  Text(request.requestedByName!, style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                  const SizedBox(width: 12),
+                ],
+                const Icon(Icons.access_time_rounded, size: 13, color: AppTheme.textMuted),
                 const SizedBox(width: 4),
-                Text(data['createdAt'] ?? '', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                Text(
+                  request.createdAt?.substring(0, 16).replaceAll('T', ' ') ?? '',
+                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                ),
               ],
             ),
           ),
+          // Admin javob izohi
+          if (request.responseNotes != null && request.responseNotes!.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.info.withValues(alpha: 0.04),
+                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(18), bottomRight: Radius.circular(18)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.chat_bubble_outline_rounded, size: 14, color: AppTheme.info),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(children: [
+                        const TextSpan(text: 'Javob: ', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.info, fontSize: 12)),
+                        TextSpan(text: request.responseNotes!, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                      ]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -187,44 +248,51 @@ class CreateRequestScreen extends StatefulWidget {
 }
 
 class _CreateRequestScreenState extends State<CreateRequestScreen> {
-  final _subjectController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _equipmentIdController = TextEditingController();
   String _type = 'REPAIR';
-  String _priority = 'NORMAL';
   bool _submitting = false;
 
+  // Backend enum: REPAIR, REPLACE, OTHER
   final _types = [
     {'value': 'REPAIR', 'label': "🔧 Ta'mirlash so'rovi", 'color': AppTheme.warning},
-    {'value': 'SPARE_PART', 'label': "⚙️ Ehtiyot qism so'rovi", 'color': AppTheme.info},
-    {'value': 'TRANSFER', 'label': "🔄 Uskuna ko'chirish", 'color': AppTheme.secondary},
+    {'value': 'REPLACE', 'label': "🔄 Uskunani almashtirish", 'color': AppTheme.info},
     {'value': 'OTHER', 'label': '📝 Boshqa', 'color': AppTheme.textSecondary},
-  ];
-
-  final _priorities = [
-    {'value': 'LOW', 'label': '🟢 Past', 'color': AppTheme.success},
-    {'value': 'NORMAL', 'label': '🟡 O\'rta', 'color': AppTheme.warning},
-    {'value': 'HIGH', 'label': '🔴 Yuqori', 'color': AppTheme.danger},
   ];
 
   @override
   void dispose() {
-    _subjectController.dispose();
     _descriptionController.dispose();
+    _equipmentIdController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (_subjectController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Mavzuni kiriting'), backgroundColor: AppTheme.danger));
+    final equipmentIdText = _equipmentIdController.text.trim();
+    final description = _descriptionController.text.trim();
+
+    if (equipmentIdText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uskuna ID sini kiriting'), backgroundColor: AppTheme.danger));
       return;
     }
+    if (description.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tavsifni kiriting'), backgroundColor: AppTheme.danger));
+      return;
+    }
+
+    final equipmentId = int.tryParse(equipmentIdText);
+    if (equipmentId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Uskuna ID son bo\'lishi kerak'), backgroundColor: AppTheme.danger));
+      return;
+    }
+
     setState(() => _submitting = true);
     try {
+      // Backend kutayotgan payload: { equipmentId, requestType, description }
       await ApiClient().dio.post('/requests', data: {
-        'subject': _subjectController.text.trim(),
-        'description': _descriptionController.text.trim(),
-        'type': _type,
-        'priority': _priority,
+        'equipmentId': equipmentId,
+        'requestType': _type,
+        'description': description,
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Ariza yuborildi!'), backgroundColor: AppTheme.success));
@@ -283,53 +351,57 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Mavzu
-          const Text('Mavzu *', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          // Uskuna ID
+          const Text('Uskuna ID *', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           TextField(
-            controller: _subjectController,
-            decoration: const InputDecoration(hintText: 'Masalan: Printer ishlamayapti'),
-            textCapitalization: TextCapitalization.sentences,
+            controller: _equipmentIdController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Masalan: 1',
+              prefixIcon: Icon(Icons.computer_rounded, size: 20),
+            ),
           ),
           const SizedBox(height: 20),
 
           // Tavsif
-          const Text('Batafsil tavsif', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          const Text('Batafsil tavsif *', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
           const SizedBox(height: 8),
           TextField(
             controller: _descriptionController,
             maxLines: 5,
-            decoration: const InputDecoration(hintText: 'Muammoni batafsil tavsiflang...', alignLabelWithHint: true),
+            decoration: const InputDecoration(
+              hintText: 'Muammoni batafsil tavsiflang...',
+              alignLabelWithHint: true,
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(bottom: 80),
+                child: Icon(Icons.description_rounded, size: 20),
+              ),
+            ),
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 24),
 
-          // Ustuvorlik
-          const Text('Ustuvorlik', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-          const SizedBox(height: 10),
-          Row(
-            children: _priorities.map((p) {
-              final selected = _priority == p['value'];
-              final color = p['color'] as Color;
-              return Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _priority = p['value'] as String),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: selected ? color.withValues(alpha: 0.12) : Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: selected ? color : AppTheme.border, width: selected ? 2 : 1),
-                    ),
-                    child: Center(
-                      child: Text(p['label'] as String, style: TextStyle(fontSize: 13, fontWeight: selected ? FontWeight.w700 : FontWeight.w400, color: selected ? color : AppTheme.textSecondary)),
-                    ),
+          // Info card
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppTheme.info.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppTheme.info.withValues(alpha: 0.15)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.info_outline_rounded, color: AppTheme.info, size: 20),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Ariza yuborilgach admin tomonidan ko\'rib chiqiladi. Status xabarnomalar orqali kuzatiladi.',
+                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, height: 1.4),
                   ),
                 ),
-              );
-            }).toList(),
+              ],
+            ),
           ),
         ],
       ),

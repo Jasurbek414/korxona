@@ -27,6 +27,14 @@ class User {
         isActive: json['isActive'] ?? true,
       );
 
+  /// Login javobidan yaratish (id kelmaydi, profile dan olinadi)
+  factory User.fromAuthResponse(Map<String, dynamic> json) => User(
+        id: 0,
+        username: json['username'] ?? '',
+        fullName: json['fullName'] ?? '',
+        role: json['role'] ?? 'VIEWER',
+      );
+
   bool get isAdmin => role == 'ADMIN';
   bool get isOperator => role == 'OPERATOR' || isAdmin;
 }
@@ -168,4 +176,69 @@ class DashboardKpi {
         overdueTasks: json['overdueTasks'] ?? 0,
         lowStockAlerts: json['lowStockAlerts'] ?? 0,
       );
+}
+
+/// Backend UserRequestDto ga mos model
+class UserRequest {
+  final int id;
+  final String? requestNumber;
+  final int? equipmentId;
+  final String? equipmentName;
+  final int? requestedById;
+  final String? requestedByName;
+  final String requestType;
+  final String status;
+  final String? description;
+  final String? responseNotes;
+  final String? respondedByName;
+  final String? respondedAt;
+  final String? createdAt;
+
+  UserRequest({
+    required this.id,
+    this.requestNumber,
+    this.equipmentId,
+    this.equipmentName,
+    this.requestedById,
+    this.requestedByName,
+    required this.requestType,
+    required this.status,
+    this.description,
+    this.responseNotes,
+    this.respondedByName,
+    this.respondedAt,
+    this.createdAt,
+  });
+
+  factory UserRequest.fromJson(Map<String, dynamic> json) => UserRequest(
+        id: json['id'] ?? 0,
+        requestNumber: json['requestNumber'],
+        equipmentId: json['equipmentId'],
+        equipmentName: json['equipmentName'],
+        requestedById: json['requestedById'],
+        requestedByName: json['requestedByName'],
+        requestType: json['requestType'] ?? 'OTHER',
+        status: json['status'] ?? 'NEW',
+        description: json['description'],
+        responseNotes: json['responseNotes'],
+        respondedByName: json['respondedByName'],
+        respondedAt: json['respondedAt'],
+        createdAt: json['createdAt'],
+      );
+
+  String get typeLabel => switch (requestType) {
+        'REPAIR' => "Ta'mirlash",
+        'REPLACE' => 'Almashtirish',
+        'OTHER' => 'Boshqa',
+        _ => requestType,
+      };
+
+  String get statusLabel => switch (status) {
+        'NEW' => 'Yangi',
+        'REVIEWING' => "Ko'rilmoqda",
+        'APPROVED' => 'Tasdiqlangan',
+        'REJECTED' => 'Rad etilgan',
+        'COMPLETED' => 'Bajarildi',
+        _ => status,
+      };
 }
