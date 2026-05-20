@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { referenceService } from '../../services/dataService';
 import { useAuth } from '../../hooks/useAuthContext';
 import toast from 'react-hot-toast';
@@ -176,8 +177,8 @@ export default function ReferencesPage() {
       </div>
 
       {/* Modal forma */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" onClick={() => setShowForm(false)}>
+      {showForm && createPortal(
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }} onClick={() => setShowForm(false)}>
           <div className="bg-white rounded-2xl w-full max-w-lg mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-color)]">
               <h3 className="font-semibold text-lg">{editItem ? 'Tahrirlash' : 'Yangi qo\'shish'}</h3>
@@ -209,7 +210,8 @@ export default function ReferencesPage() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

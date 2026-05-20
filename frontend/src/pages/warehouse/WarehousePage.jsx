@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { warehouseService } from '../../services/dataService';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import toast from 'react-hot-toast';
@@ -239,8 +240,8 @@ export default function WarehousePage() {
       )}
 
       {/* Operatsiya modali */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      {showModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 animate-fade-in">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Ombor operatsiyasi</h2>
             <div className="flex gap-2 mb-4">
@@ -306,7 +307,8 @@ export default function WarehousePage() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
