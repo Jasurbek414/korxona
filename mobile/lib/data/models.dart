@@ -85,9 +85,9 @@ class Equipment {
         responsiblePersonName: json['responsiblePersonName'],
         manufacturerName: json['manufacturerName'],
         modelName: json['modelName'],
-        serialNumber: json['serialNumber'],
-        commissionedDate: json['commissionedDate'],
-        warrantyDate: json['warrantyDate'],
+        serialNumber: json['serialNumber']?.toString(),
+        commissionedDate: _parseDate(json['commissionedDate']),
+        warrantyDate: _parseDate(json['warrantyDate']),
         purchasePrice: (json['purchasePrice'] as num?)?.toDouble(),
         notes: json['notes'],
       );
@@ -127,11 +127,11 @@ class PprTask {
         equipmentId: json['equipmentId'],
         pprTypeName: json['pprTypeName'],
         assignedToName: json['assignedToName'],
-        scheduledDate: json['scheduledDate'],
+        scheduledDate: _parseDate(json['scheduledDate']),
         status: json['status'] ?? 'SCHEDULED',
         priority: json['priority'] ?? 'NORMAL',
         completionNotes: json['completionNotes'],
-        createdAt: json['createdAt'],
+        createdAt: _parseDate(json['createdAt']),
       );
 
   bool get isOverdue {
@@ -222,8 +222,8 @@ class UserRequest {
         description: json['description'],
         responseNotes: json['responseNotes'],
         respondedByName: json['respondedByName'],
-        respondedAt: json['respondedAt'],
-        createdAt: json['createdAt'],
+        respondedAt: _parseDate(json['respondedAt']),
+        createdAt: _parseDate(json['createdAt']),
       );
 
   String get typeLabel => switch (requestType) {
@@ -241,4 +241,14 @@ class UserRequest {
         'COMPLETED' => 'Bajarildi',
         _ => status,
       };
+}
+
+String? _parseDate(dynamic dateData) {
+  if (dateData == null) return null;
+  if (dateData is String) return dateData;
+  if (dateData is List && dateData.length >= 3) {
+    // Jackson LocalDate format: [year, month, day]
+    return '${dateData[0]}-${dateData[1].toString().padLeft(2, '0')}-${dateData[2].toString().padLeft(2, '0')}';
+  }
+  return dateData.toString();
 }
