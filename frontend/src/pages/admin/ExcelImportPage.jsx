@@ -1,19 +1,25 @@
 import { useState, useRef } from 'react';
 import { importService } from '../../services/dataService';
 import toast from 'react-hot-toast';
-import { HiOutlineDocumentArrowUp, HiOutlineDocumentArrowDown, HiOutlineCheck, HiOutlineXMark } from 'react-icons/hi2';
+import { 
+  HiOutlineDocumentArrowUp, HiOutlineDocumentArrowDown, 
+  HiOutlineCheck, HiOutlineXMark, HiOutlineComputerDesktop,
+  HiOutlineCube, HiOutlineDocumentText, HiOutlineChartBar, HiOutlineSparkles
+} from 'react-icons/hi2';
 
 const IMPORT_TYPES = [
   {
     key: 'equipment', label: 'Uskunalar',
     desc: "Inventar raqami, nomi, toifasi, seriya raqami, joylashuv",
-    icon: '🖥️', gradient: 'from-blue-500 to-indigo-600',
+    icon: HiOutlineComputerDesktop,
+    colors: ['#3b82f6', '#4f46e5'], // blue to indigo
     handler: (formData) => importService.importEquipment(formData),
   },
   {
     key: 'spare-parts', label: 'Ehtiyot qismlar',
     desc: "Nomi, kodi, o'lchov birligi, narxi, minimal qoldiq",
-    icon: '📦', gradient: 'from-emerald-500 to-teal-600',
+    icon: HiOutlineCube,
+    colors: ['#10b981', '#059669'], // emerald to teal
     handler: (formData) => importService.importSpareParts(formData),
   },
 ];
@@ -72,136 +78,159 @@ export default function ExcelImportPage() {
   };
 
   return (
-    <div className="animate-fade-in">
+    <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">📥 Excel Import</h1>
-        <p className="text-sm text-slate-500 mt-1">Ma'lumotlarni Excel fayldan ommaviy yuklash</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(16,185,129,0.3)' }}>
+          <HiOutlineDocumentArrowDown style={{ color: '#fff', fontSize: '28px' }} />
+        </div>
+        <div>
+          <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0', tracking: 'tight' }}>Excel Import</h1>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Ma'lumotlarni Excel fayldan ommaviy yuklash
+          </p>
+        </div>
       </div>
 
       {/* Import turi tanlash */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        {IMPORT_TYPES.map(type => (
-          <button key={type.key} onClick={() => { setSelectedType(type.key); setFile(null); setResult(null); }}
-            className={`card p-5 text-left transition-all duration-200 group ${
-              selectedType === type.key
-                ? 'ring-2 ring-blue-500 border-blue-200 shadow-md'
-                : 'hover:shadow-md'
-            }`}>
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${type.gradient} flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform`}>
-                {type.icon}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        {IMPORT_TYPES.map(type => {
+          const isSelected = selectedType === type.key;
+          const Icon = type.icon;
+          return (
+            <button key={type.key} onClick={() => { setSelectedType(type.key); setFile(null); setResult(null); }}
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: '16px', padding: '24px', textAlign: 'left',
+                background: isSelected ? '#f8fafc' : '#fff',
+                border: isSelected ? `2px solid ${type.colors[0]}` : '1px solid #e2e8f0',
+                borderRadius: '24px', cursor: 'pointer', transition: 'all 0.3s',
+                boxShadow: isSelected ? `0 10px 25px -5px ${type.colors[0]}40` : '0 4px 6px -1px rgba(0,0,0,0.05)'
+              }} className="hover:-translate-y-1 hover:shadow-lg">
+              <div style={{
+                width: '56px', height: '56px', borderRadius: '16px', flexShrink: 0,
+                background: `linear-gradient(135deg, ${type.colors[0]}, ${type.colors[1]})`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: `0 10px 15px -3px ${type.colors[0]}50`
+              }}>
+                <Icon style={{ color: '#fff', fontSize: '28px' }} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-800">{type.label}</h3>
-                <p className="text-xs text-slate-500 mt-1">{type.desc}</p>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>{type.label}</h3>
+                <p style={{ fontSize: '13px', fontWeight: 500, color: '#64748b', margin: 0, lineHeight: 1.5 }}>{type.desc}</p>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          )
+        })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '32px' }}>
         {/* Yuklash paneli */}
-        <div className="card p-6">
-          <h3 className="text-base font-semibold text-slate-800 mb-4">
-            Faylni yuklash — <span className="gradient-text">{activeType?.label}</span>
+        <div style={{ background: '#fff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>
+            Faylni yuklash — <span style={{ color: activeType.colors[0] }}>{activeType?.label}</span>
           </h3>
 
           {/* Shablon yuklab olish */}
           <button onClick={handleDownloadTemplate}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/50 transition-all mb-4 group">
-            <HiOutlineDocumentArrowDown className="text-2xl text-slate-400 group-hover:text-blue-500 transition" />
-            <div className="text-left">
-              <p className="text-sm font-medium text-slate-700">📋 Shablonni yuklab oling</p>
-              <p className="text-xs text-slate-400">To'ldiring va qayta yuklang</p>
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', marginBottom: '24px',
+              background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '16px', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'left'
+            }} className="hover:bg-slate-100 hover:border-slate-400 group">
+            <HiOutlineDocumentText className="group-hover:text-blue-500" style={{ fontSize: '32px', color: '#94a3b8', transition: 'color 0.2s' }} />
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: 700, color: '#334155', margin: '0 0 4px 0' }}>Shablonni yuklab oling</p>
+              <p style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', margin: 0 }}>To'ldiring va qayta yuklang</p>
             </div>
           </button>
 
           {/* Fayl tanlash */}
           <div
             onClick={() => fileRef.current?.click()}
-            className={`relative flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-200 ${
-              file
-                ? 'border-emerald-300 bg-emerald-50/50'
-                : 'border-slate-200 bg-slate-50/50 hover:border-blue-300 hover:bg-blue-50/30'
-            }`}>
-            <input ref={fileRef} type="file" accept=".xlsx,.xls" onChange={handleFileChange} className="hidden" />
+            style={{
+              position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              padding: '48px 32px', borderRadius: '24px', cursor: 'pointer', transition: 'all 0.2s', textAlign: 'center',
+              background: file ? '#ecfdf5' : '#f8fafc',
+              border: file ? '2px dashed #34d399' : '2px dashed #cbd5e1'
+            }} className="hover:bg-slate-50 hover:border-slate-400">
+            <input ref={fileRef} type="file" accept=".xlsx,.xls" onChange={handleFileChange} style={{ display: 'none' }} />
 
             {file ? (
               <>
-                <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mb-3">
-                  <HiOutlineCheck className="text-emerald-600 text-2xl" />
+                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                  <HiOutlineCheck style={{ color: '#059669', fontSize: '32px' }} />
                 </div>
-                <p className="text-sm font-semibold text-emerald-700">{file.name}</p>
-                <p className="text-xs text-emerald-500 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: '#065f46', margin: '0 0 4px 0' }}>{file.name}</p>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: '#10b981', margin: 0 }}>{(file.size / 1024).toFixed(1)} KB</p>
               </>
             ) : (
               <>
-                <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-                  <HiOutlineDocumentArrowUp className="text-slate-400 text-2xl" />
+                <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                  <HiOutlineDocumentArrowUp style={{ color: '#64748b', fontSize: '32px' }} />
                 </div>
-                <p className="text-sm font-medium text-slate-600">Faylni bu yerga tashlang</p>
-                <p className="text-xs text-slate-400 mt-1">yoki bosing tanlash uchun (.xlsx)</p>
+                <p style={{ fontSize: '16px', fontWeight: 800, color: '#334155', margin: '0 0 4px 0' }}>Faylni bu yerga tashlang</p>
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#94a3b8', margin: 0 }}>yoki bosing tanlash uchun (.xlsx)</p>
               </>
             )}
           </div>
 
           {/* Yuklash tugmasi */}
           <button onClick={handleUpload} disabled={!file || uploading}
-            className="btn btn-primary w-full mt-4 py-3 disabled:opacity-40">
+            style={{
+              width: '100%', marginTop: '24px', padding: '16px', borderRadius: '16px', border: 'none',
+              background: `linear-gradient(135deg, ${activeType.colors[0]}, ${activeType.colors[1]})`,
+              color: '#fff', fontSize: '16px', fontWeight: 800, cursor: (!file || uploading) ? 'not-allowed' : 'pointer',
+              opacity: (!file || uploading) ? 0.6 : 1, transition: 'all 0.3s',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+              boxShadow: (!file || uploading) ? 'none' : `0 10px 20px -5px ${activeType.colors[0]}60`
+            }} className={(!file || uploading) ? "" : "hover:-translate-y-1"}>
             {uploading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Import qilinmoqda...
-              </>
+              <><div className="animate-spin" style={{ width: '20px', height: '20px', border: '3px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} /> Import qilinmoqda...</>
             ) : (
-              <>📥 Import qilish</>
+              <><HiOutlineDocumentArrowUp style={{ fontSize: '24px' }} /> Import qilish</>
             )}
           </button>
         </div>
 
         {/* Natijalar */}
-        <div className="card p-6">
-          <h3 className="text-base font-semibold text-slate-800 mb-4">Natijalar</h3>
+        <div style={{ background: '#fff', borderRadius: '24px', padding: '32px', boxShadow: '0 4px 20px -4px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Natijalar</h3>
 
           {!result ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-3">
-                <span className="text-3xl">📊</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 0', color: '#94a3b8' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+                <HiOutlineChartBar style={{ fontSize: '40px', color: '#cbd5e1' }} />
               </div>
-              <p className="text-sm">Import natijasi bu yerda ko'rinadi</p>
+              <p style={{ fontSize: '15px', fontWeight: 600 }}>Import natijasi bu yerda ko'rinadi</p>
             </div>
           ) : (
-            <div className="space-y-4 animate-fade-in">
+            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* Umumiy statistika */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="p-4 rounded-2xl bg-slate-50 text-center">
-                  <p className="text-2xl font-extrabold text-slate-800">{result.total}</p>
-                  <p className="text-xs text-slate-500 mt-1">Jami qator</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                <div style={{ padding: '20px', borderRadius: '20px', background: '#f8fafc', textAlign: 'center' }}>
+                  <p style={{ fontSize: '32px', fontWeight: 900, color: '#0f172a', margin: '0 0 4px 0' }}>{result.total}</p>
+                  <p style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', margin: 0 }}>Jami qator</p>
                 </div>
-                <div className="p-4 rounded-2xl bg-emerald-50 text-center">
-                  <p className="text-2xl font-extrabold text-emerald-700">{result.success}</p>
-                  <p className="text-xs text-emerald-600 mt-1">Muvaffaqiyatli</p>
+                <div style={{ padding: '20px', borderRadius: '20px', background: '#ecfdf5', textAlign: 'center' }}>
+                  <p style={{ fontSize: '32px', fontWeight: 900, color: '#047857', margin: '0 0 4px 0' }}>{result.success}</p>
+                  <p style={{ fontSize: '13px', fontWeight: 700, color: '#059669', margin: 0 }}>Muvaffaqiyatli</p>
                 </div>
-                <div className={`p-4 rounded-2xl text-center ${result.errors?.length > 0 ? 'bg-red-50' : 'bg-slate-50'}`}>
-                  <p className={`text-2xl font-extrabold ${result.errors?.length > 0 ? 'text-red-700' : 'text-slate-400'}`}>
+                <div style={{ padding: '20px', borderRadius: '20px', background: result.errors?.length > 0 ? '#fef2f2' : '#f8fafc', textAlign: 'center' }}>
+                  <p style={{ fontSize: '32px', fontWeight: 900, color: result.errors?.length > 0 ? '#b91c1c' : '#94a3b8', margin: '0 0 4px 0' }}>
                     {result.errors?.length || 0}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">Xatolar</p>
+                  <p style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', margin: 0 }}>Xatolar</p>
                 </div>
               </div>
 
               {/* Progress bar */}
               {result.total > 0 && (
                 <div>
-                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, color: '#64748b', marginBottom: '8px' }}>
                     <span>Muvaffaqiyat</span>
-                    <span>{Math.round((result.success / result.total) * 100)}%</span>
+                    <span style={{ color: '#059669' }}>{Math.round((result.success / result.total) * 100)}%</span>
                   </div>
-                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-700"
-                      style={{ width: `${(result.success / result.total) * 100}%` }} />
+                  <div style={{ width: '100%', height: '12px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: 'linear-gradient(90deg, #34d399, #059669)', borderRadius: '999px', transition: 'width 1s ease', width: `${(result.success / result.total) * 100}%` }} />
                   </div>
                 </div>
               )}
@@ -209,15 +238,14 @@ export default function ExcelImportPage() {
               {/* Xatolar ro'yxati */}
               {result.errors?.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-red-600 mb-2">Xatolar</h4>
-                  <div className="max-h-60 overflow-y-auto space-y-1.5">
+                  <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#dc2626', marginBottom: '12px' }}>Xatolar</h4>
+                  <div style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
                     {result.errors.map((err, i) => (
-                      <div key={i} className="flex items-start gap-2 p-2.5 rounded-xl bg-red-50 border border-red-100 animate-fade-in"
-                        style={{ animationDelay: `${i * 50}ms` }}>
-                        <HiOutlineXMark className="text-red-500 mt-0.5 flex-shrink-0" />
+                      <div key={i} className="animate-fade-in" style={{ animationDelay: `${i * 50}ms`, display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px 16px', borderRadius: '16px', background: '#fef2f2', border: '1px solid #fee2e2' }}>
+                        <HiOutlineXMark style={{ color: '#ef4444', fontSize: '20px', flexShrink: 0, marginTop: '2px' }} />
                         <div>
-                          <span className="text-xs font-semibold text-red-700">Qator {err.row}:</span>
-                          <span className="text-xs text-red-600 ml-1">{err.message}</span>
+                          <span style={{ fontSize: '14px', fontWeight: 800, color: '#991b1b' }}>Qator {err.row}: </span>
+                          <span style={{ fontSize: '14px', fontWeight: 600, color: '#b91c1c' }}>{err.message}</span>
                         </div>
                       </div>
                     ))}
@@ -226,9 +254,11 @@ export default function ExcelImportPage() {
               )}
 
               {result.success > 0 && result.errors?.length === 0 && (
-                <div className="text-center py-4">
-                  <p className="text-4xl mb-2">🎉</p>
-                  <p className="text-base font-semibold text-emerald-600">Barcha ma'lumotlar muvaffaqiyatli import qilindi!</p>
+                <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                  <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#d1fae5', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HiOutlineSparkles style={{ fontSize: '40px', color: '#059669' }} />
+                  </div>
+                  <p style={{ fontSize: '18px', fontWeight: 800, color: '#065f46', margin: 0 }}>Barcha ma'lumotlar muvaffaqiyatli import qilindi!</p>
                 </div>
               )}
             </div>
