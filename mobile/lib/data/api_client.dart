@@ -57,8 +57,11 @@ class ApiClient {
       final refreshToken = await _storage.read(key: AppConstants.refreshTokenKey);
       if (refreshToken == null) return false;
 
-      final response = await Dio(BaseOptions(baseUrl: AppConstants.baseUrl))
-          .post('/auth/refresh', data: {'refreshToken': refreshToken});
+      final response = await Dio(BaseOptions(
+        baseUrl: AppConstants.baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      )).post('/auth/refresh', data: {'refreshToken': refreshToken});
 
       final data = response.data;
       await _storage.write(key: AppConstants.accessTokenKey, value: data['accessToken']);

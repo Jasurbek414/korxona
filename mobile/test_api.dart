@@ -80,6 +80,23 @@ void main() async {
       }
     }
     print('Parsing completed successfully.');
+    // Test PprTask parsing
+    final tunPpr = await dio.get(
+      'https://boshliq-api.ecos.uz/api/v1/ppr/tasks?page=0&size=10',
+      options: Options(headers: {'Authorization': 'Bearer $tunToken'}),
+    );
+    final pprContent2 = tunPpr.data['content'] as List;
+    for (var item in pprContent2) {
+      try {
+        final task = PprTask.fromJson(item);
+      } catch (e, stack) {
+        print('PPR PARSING ERROR ON ITEM: $item');
+        print('Exception: $e');
+        print('Stack: $stack');
+      }
+    }
+    
+    print('Parsing completed successfully.');
   } catch (e) {
     if (e is DioException) {
       print('ERROR: ${e.response?.statusCode} - ${e.response?.data}');
