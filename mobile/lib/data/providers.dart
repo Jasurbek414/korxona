@@ -37,7 +37,13 @@ class AuthNotifier extends Notifier<AuthState> {
   ApiClient get _api => ref.read(apiProvider);
 
   Future<void> _checkAuth() async {
-    final hasToken = await _api.hasToken();
+    bool hasToken = false;
+    try {
+      hasToken = await _api.hasToken().timeout(const Duration(seconds: 3));
+    } catch (_) {
+      hasToken = false; // Timeout or storage error
+    }
+    
     if (hasToken) {
       await loadProfile();
     } else {

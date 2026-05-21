@@ -21,10 +21,12 @@ class ApiClient {
     // JWT token interceptor
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final token = await _storage.read(key: AppConstants.accessTokenKey);
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
+        try {
+          final token = await _storage.read(key: AppConstants.accessTokenKey).timeout(const Duration(seconds: 3));
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+        } catch (_) {}
         return handler.next(options);
       },
       onError: (error, handler) async {
@@ -54,7 +56,13 @@ class ApiClient {
 
   Future<bool> _refreshToken() async {
     try {
-      final refreshToken = await _storage.read(key: AppConstants.refreshTokenKey);
+      String? refreshToken;
+      try {
+        refreshToken = await _storage.read(key: AppConstants.refreshTokenKey).timeout(const Duration(seconds: 3));
+      } catch (_) {
+        return false;
+      }
+      
       if (refreshToken == null) return false;
 
       final response = await Dio(BaseOptions(
@@ -73,17 +81,25 @@ class ApiClient {
   }
 
   Future<void> saveTokens(String accessToken, String refreshToken) async {
-    await _storage.write(key: AppConstants.accessTokenKey, value: accessToken);
-    await _storage.write(key: AppConstants.refreshTokenKey, value: refreshToken);
+    try {
+      await _storage.write(key: AppConstants.accessTokenKey, value: accessToken).timeout(const Duration(seconds: 3));
+      await _storage.write(key: AppConstants.refreshTokenKey, value: refreshToken).timeout(const Duration(seconds: 3));
+    } catch (_) {}
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll();
+    try {
+      await _storage.deleteAll().timeout(const Duration(seconds: 3));
+    } catch (_) {}
     if (onUnauthenticated != null) onUnauthenticated!();
   }
 
   Future<bool> hasToken() async {
-    final token = await _storage.read(key: AppConstants.accessTokenKey);
-    return token != null;
+    try {
+      final token = await _storage.read(key: AppConstants.accessTokenKey).timeout(const Duration(seconds: 3));
+      return token != null;
+    } catch (_) {
+      return false;
+    }
   }
 }
