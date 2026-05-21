@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import uz.boshliq.equipment.entity.User;
 import uz.boshliq.equipment.service.TaskDetailService;
 
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TZ 3.9, 3.11, 3.12: Vazifa tafsilotlari API.
+ * TZ 3.9, 3.10, 3.11, 3.12: Vazifa tafsilotlari API.
  */
 @RestController
 @RequestMapping("/api/v1/ppr/tasks/{taskId}")
@@ -48,6 +49,32 @@ public class TaskDetailController {
     ) {
         String notes = body != null ? body.get("notes") : null;
         return ResponseEntity.ok(service.toggleChecklistItem(itemId, notes));
+    }
+
+    // ====== Fotosuratlar (TZ 3.10) ======
+
+    @GetMapping("/photos")
+    public ResponseEntity<List<TaskDetailService.TaskPhotoDto>> getPhotos(@PathVariable Long taskId) {
+        return ResponseEntity.ok(service.getPhotos(taskId));
+    }
+
+    @PostMapping("/photos")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<TaskDetailService.TaskPhotoDto> uploadPhoto(
+            @PathVariable Long taskId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "type", defaultValue = "BEFORE") String type,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.uploadTaskPhoto(taskId, file, type, currentUser));
+    }
+
+    @DeleteMapping("/photos/{photoId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR')")
+    public ResponseEntity<Void> deletePhoto(@PathVariable Long taskId, @PathVariable Long photoId) {
+        service.deleteTaskPhoto(photoId);
+        return ResponseEntity.noContent().build();
     }
 
     // ====== Izohlar (TZ 3.11) ======
