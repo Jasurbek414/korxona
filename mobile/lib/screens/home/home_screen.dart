@@ -4,6 +4,8 @@ import '../../core/theme.dart';
 import '../../data/providers.dart';
 import '../notifications/notifications_screen.dart';
 import '../requests/requests_screen.dart';
+import '../scanner/qr_scanner_screen.dart';
+import '../ppr/ppr_list_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -12,10 +14,14 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
     final kpiAsync = ref.watch(dashboardKpiProvider);
+    final unreadAsync = ref.watch(unreadNotificationCountProvider);
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(dashboardKpiProvider),
+        onRefresh: () async {
+          ref.invalidate(dashboardKpiProvider);
+          ref.invalidate(unreadNotificationCountProvider);
+        },
         child: CustomScrollView(
           slivers: [
             // AppBar
@@ -28,7 +34,22 @@ class HomeScreen extends ConsumerWidget {
                   icon: Stack(
                     children: [
                       const Icon(Icons.notifications_outlined, color: Colors.white),
-                      Positioned(right: 0, top: 0, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppTheme.danger, shape: BoxShape.circle))),
+                      unreadAsync.when(
+                        data: (count) => count > 0
+                            ? Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                                  decoration: const BoxDecoration(color: AppTheme.danger, shape: BoxShape.circle),
+                                  child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      ),
                     ],
                   ),
                 ),
@@ -61,7 +82,7 @@ class HomeScreen extends ConsumerWidget {
                                   children: [
                                     Text('Salom, ${user?.fullName ?? ""}! 👋',
                                         style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                                    Text(user?.role == 'ADMIN' ? '👑 Administrator' : user?.role ?? '',
+                                    Text(user?.role == 'ADMIN' ? '👑 Administrator' : user?.role == 'OPERATOR' ? '🔧 Operator' : '👁️ Ko\'ruvchi',
                                         style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12)),
                                   ],
                                 ),
@@ -89,7 +110,7 @@ class HomeScreen extends ConsumerWidget {
                   childAspectRatio: 1.35,
                   children: [
                     _KpiCard(title: 'Jami uskunalar', value: '${kpi.totalEquipment}', icon: Icons.computer_rounded, color: AppTheme.primary),
-                    _KpiCard(title: 'Faol PPR', value: '${kpi.activePpr}', icon: Icons.build_rounded, color: AppTheme.warning),
+                    _KpiCard(title: 'PPR vazifalari', value: '${kpi.activePpr}', subtitle: 'bajarildi: ${kpi.pprCompletedTasks}', icon: Icons.build_rounded, color: AppTheme.warning),
                     _KpiCard(title: "Muddati o'tgan", value: '${kpi.overdueTasks}', icon: Icons.warning_rounded, color: AppTheme.danger),
                     _KpiCard(title: 'Kam qoldiq', value: '${kpi.lowStockAlerts}', icon: Icons.inventory_rounded, color: AppTheme.secondary),
                   ],
@@ -102,7 +123,126 @@ class HomeScreen extends ConsumerWidget {
                   children: List.generate(4, (_) => _ShimmerCard()),
                 ),
                 error: (e, s) => SliverToBoxAdapter(
-                  child: Center(child: Text('Ma\'lumot yuklanmadi', style: TextStyle(color: AppTheme.textMuted))),
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.danger.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.danger.withValues(alpha: 0.2)),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(Icons.cloud_off_rounded, color: AppTheme.danger, size: 32),
+                        const SizedBox(height: 8),
+                        const Text("Ma'lumot yuklanmadi", style: TextStyle(color: AppTheme.danger, fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 4),
+                        Text('$e', style: const TextStyle(color: AppTheme.textMuted, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: () => ref.invalidate(dashboardKpiProvider),
+                          icon: const Icon(Icons.refresh_rounded, size: 16),
+                          label: const Text('Qayta urinish'),
+                          style: OutlinedButton.styleFrom(foregroundColor: AppTheme.danger, side: const BorderSide(color: AppTheme.danger)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Bugungi vazifalar
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: kpiAsync.when(
+                  data: (kpi) => kpi.todayTasks > 0
+                      ? Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [AppTheme.info.withValues(alpha: 0.08), AppTheme.info.withValues(alpha: 0.03)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppTheme.info.withValues(alpha: 0.2)),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const PprListScreen()));
+                            },
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(color: AppTheme.info.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                                  child: const Icon(Icons.today_rounded, color: AppTheme.info, size: 22),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Bugungi vazifalar', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                                      Text('${kpi.todayTasks} ta vazifa bajarilishi kerak', style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(Icons.chevron_right_rounded, color: AppTheme.info),
+                              ],
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+
+            // PPR completion rate
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: kpiAsync.when(
+                  data: (kpi) => kpi.activePpr > 0
+                      ? Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppTheme.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('PPR bajarilishi (bu oy)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                                  Text('${kpi.pprCompletionRate}%', style: TextStyle(fontWeight: FontWeight.w700, color: kpi.pprCompletionRate >= 80 ? AppTheme.success : AppTheme.warning)),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: LinearProgressIndicator(
+                                  value: kpi.pprCompletionRate / 100.0,
+                                  minHeight: 8,
+                                  backgroundColor: AppTheme.bgMain,
+                                  color: kpi.pprCompletionRate >= 80 ? AppTheme.success : kpi.pprCompletionRate >= 50 ? AppTheme.warning : AppTheme.danger,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('${kpi.pprCompletedTasks} / ${kpi.activePpr} vazifa bajarildi', style: const TextStyle(fontSize: 11, color: AppTheme.textMuted)),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
                 ),
               ),
             ),
@@ -118,7 +258,12 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        _QuickAction(icon: Icons.qr_code_scanner_rounded, label: 'QR Skanerlash', color: AppTheme.primary, onTap: () {}),
+                        _QuickAction(
+                          icon: Icons.qr_code_scanner_rounded,
+                          label: 'QR Skanerlash',
+                          color: AppTheme.primary,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QrScannerFullScreen())),
+                        ),
                         const SizedBox(width: 12),
                         _QuickAction(icon: Icons.add_task_rounded, label: 'Yangi ariza', color: AppTheme.success, onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateRequestScreen()));
@@ -127,6 +272,26 @@ class HomeScreen extends ConsumerWidget {
                         _QuickAction(icon: Icons.list_alt_rounded, label: 'Arizalarim', color: AppTheme.warning, onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => const RequestsScreen()));
                         }),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        _QuickAction(
+                          icon: Icons.build_rounded,
+                          label: 'PPR vazifalari',
+                          color: const Color(0xFF8B5CF6),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PprListScreen())),
+                        ),
+                        const SizedBox(width: 12),
+                        _QuickAction(
+                          icon: Icons.notifications_rounded,
+                          label: 'Xabarnomalar',
+                          color: const Color(0xFFEC4899),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(child: SizedBox()), // placeholder
                       ],
                     ),
                   ],
@@ -142,13 +307,24 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// QR skanerlash uchun to'liq ekran (Dashboard dan ochiladi)
+class QrScannerFullScreen extends StatelessWidget {
+  const QrScannerFullScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const QrScannerScreen();
+  }
+}
+
 class _KpiCard extends StatelessWidget {
   final String title;
   final String value;
+  final String? subtitle;
   final IconData icon;
   final Color color;
 
-  const _KpiCard({required this.title, required this.value, required this.icon, required this.color});
+  const _KpiCard({required this.title, required this.value, required this.icon, required this.color, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -179,11 +355,13 @@ class _KpiCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                title, 
+                title,
                 style: const TextStyle(fontSize: 11, color: AppTheme.textMuted, height: 1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (subtitle != null)
+                Text(subtitle!, style: TextStyle(fontSize: 9, color: color, fontWeight: FontWeight.w500, height: 1.3)),
             ],
           ),
         ],
