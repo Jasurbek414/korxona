@@ -101,8 +101,12 @@ final equipmentListProvider = FutureProvider.family<List<Equipment>, Map<String,
 
 final equipmentDetailProvider = FutureProvider.family<Equipment, int>((ref, id) async {
   final api = ref.read(apiProvider);
-  final res = await api.dio.get('/equipment/$id');
-  return Equipment.fromJson(res.data);
+  try {
+    final res = await api.dio.get('/equipment/$id');
+    return Equipment.fromJson(res.data);
+  } catch (e) {
+    throw Exception('Uskuna ma\'lumotlari yuklanmadi: $e');
+  }
 });
 
 final statusHistoryProvider = FutureProvider.family<List<StatusHistory>, int>((ref, equipmentId) async {

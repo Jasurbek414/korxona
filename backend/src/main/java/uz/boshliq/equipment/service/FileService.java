@@ -39,6 +39,7 @@ public class FileService {
     // ======================== HUJJATLAR ========================
 
     /** Uskuna hujjatlarini olish */
+    @Transactional(readOnly = true)
     public List<DocumentResponse> getDocuments(Long equipmentId) {
         checkEquipmentExists(equipmentId);
         return documentRepository.findAllByEquipmentIdAndIsDeletedFalse(equipmentId)
@@ -96,6 +97,7 @@ public class FileService {
     // ======================== FOTOSURATLAR ========================
 
     /** Uskuna fotosuratlarini olish */
+    @Transactional(readOnly = true)
     public List<PhotoResponse> getPhotos(Long equipmentId) {
         checkEquipmentExists(equipmentId);
         return photoRepository.findAllByEquipmentIdAndIsDeletedFalse(equipmentId)
