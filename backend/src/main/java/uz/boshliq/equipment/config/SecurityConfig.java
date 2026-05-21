@@ -1,5 +1,6 @@
 package uz.boshliq.equipment.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -40,14 +41,17 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+                }))
                 .authorizeHttpRequests(auth -> auth
                         // Ochiq endpointlar
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/*/photos/*/file").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/*/documents/*/file").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/{equipmentId}/photos/{photoId}/file").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/{equipmentId}/documents/{documentId}/file").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/qr/**").permitAll()
                         // Qolgan barcha endpointlar autentifikatsiya talab qiladi
                         .anyRequest().authenticated()
