@@ -8,6 +8,7 @@ class ApiClient {
 
   late final Dio dio;
   final _storage = const FlutterSecureStorage();
+  void Function()? onUnauthenticated;
 
   ApiClient._internal() {
     dio = Dio(BaseOptions(
@@ -75,6 +76,7 @@ class ApiClient {
 
   Future<void> logout() async {
     await _storage.deleteAll();
+    if (onUnauthenticated != null) onUnauthenticated!();
   }
 
   Future<bool> hasToken() async {

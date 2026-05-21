@@ -27,6 +27,9 @@ class AuthState {
 class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
+    _api.onUnauthenticated = () {
+      state = const AuthState();
+    };
     _checkAuth();
     return const AuthState(loading: true);
   }
