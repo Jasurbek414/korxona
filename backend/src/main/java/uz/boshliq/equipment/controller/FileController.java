@@ -2,10 +2,7 @@ package uz.boshliq.equipment.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +13,6 @@ import uz.boshliq.equipment.dto.PhotoResponse;
 import uz.boshliq.equipment.entity.User;
 import uz.boshliq.equipment.service.FileService;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
