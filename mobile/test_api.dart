@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'lib/data/models.dart';
 
 void main() async {
   final dio = Dio();
@@ -54,7 +55,7 @@ void main() async {
     print('\n=== Testing via Cloudflare Tunnel ===');
     final tunRes = await dio.post(
       'https://boshliq-api.ecos.uz/api/v1/auth/login',
-      data: {'username': 'admin', 'password': 'Admin123!'},
+      data: {'username': 'viewer1', 'password': 'Admin123!'},
     );
     print('Tunnel LOGIN SUCCESS! Token received.');
     final tunToken = tunRes.data['accessToken'];
@@ -68,6 +69,17 @@ void main() async {
     final tunContent = tunEq.data['content'] as List;
     print('Tunnel items returned: ${tunContent.length}');
     
+    // Test parsing
+    for (var item in tunContent) {
+      try {
+        final eq = Equipment.fromJson(item);
+      } catch (e, stack) {
+        print('PARSING ERROR ON ITEM: $item');
+        print('Exception: $e');
+        print('Stack: $stack');
+      }
+    }
+    print('Parsing completed successfully.');
   } catch (e) {
     if (e is DioException) {
       print('ERROR: ${e.response?.statusCode} - ${e.response?.data}');

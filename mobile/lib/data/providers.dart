@@ -76,6 +76,8 @@ class AuthNotifier extends Notifier<AuthState> {
       await _api.dio.post('/auth/logout');
     } catch (_) {}
     await _api.logout();
+    ref.invalidate(equipmentListProvider);
+    ref.invalidate(pprTasksProvider);
     state = const AuthState();
   }
 }
