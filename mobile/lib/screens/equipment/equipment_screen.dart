@@ -158,23 +158,25 @@ class _DetailBody extends ConsumerWidget {
     final statusColor = _parseColor();
     final historyAsync = ref.watch(statusHistoryProvider(equipment.id));
 
-    return CustomScrollView(slivers: [
-      SliverAppBar(
-        expandedHeight: 180, pinned: true,
-        flexibleSpace: FlexibleSpaceBar(
-          background: Container(
-            decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E3A5F), Color(0xFF2563EB)])),
-            child: SafeArea(child: Padding(padding: const EdgeInsets.fromLTRB(20, 48, 20, 20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.end, children: [
-              Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8), border: Border.all(color: statusColor.withValues(alpha: 0.4))), child: Text(equipment.statusName ?? '—', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600))),
-              const SizedBox(height: 8),
-              Text(equipment.name, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
-              Text(equipment.inventoryNumber, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
-            ]))),
+    return Scaffold(
+      backgroundColor: AppTheme.background,
+      body: CustomScrollView(slivers: [
+        SliverAppBar(
+          expandedHeight: 180, pinned: true,
+          title: const Text('Uskuna haqida', style: TextStyle(fontSize: 16)),
+          flexibleSpace: FlexibleSpaceBar(
+            background: Container(
+              decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1E3A5F), Color(0xFF2563EB)])),
+              child: SafeArea(child: Padding(padding: const EdgeInsets.fromLTRB(20, 48, 20, 20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.end, children: [
+                Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8), border: Border.all(color: statusColor.withValues(alpha: 0.4))), child: Text(equipment.statusName ?? '—', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600))),
+                const SizedBox(height: 8),
+                Text(equipment.name, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                Text(equipment.inventoryNumber, style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 14)),
+              ]))),
+            ),
           ),
-          title: Text(equipment.inventoryNumber, style: const TextStyle(fontSize: 14)),
+          foregroundColor: Colors.white,
         ),
-        foregroundColor: Colors.white,
-      ),
       SliverPadding(padding: const EdgeInsets.all(16), sliver: SliverList(delegate: SliverChildListDelegate([
         _SectionTitle(title: "Asosiy ma'lumotlar"),
         _InfoCard(children: [
@@ -245,7 +247,8 @@ class _DetailBody extends ConsumerWidget {
         ),
         const SizedBox(height: 80),
       ]))),
-    ]);
+    ]),
+    );
   }
 
   Color _colorFromHex(String? hex) {
