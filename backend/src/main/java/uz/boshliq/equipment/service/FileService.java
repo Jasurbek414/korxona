@@ -2,6 +2,12 @@ package uz.boshliq.equipment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +19,10 @@ import uz.boshliq.equipment.exception.ResourceNotFoundException;
 import uz.boshliq.equipment.repository.*;
 import uz.boshliq.equipment.util.FileUploadUtil;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +42,9 @@ public class FileService {
     private final DocumentTypeRepository documentTypeRepository;
     private final EquipmentRepository equipmentRepository;
     private final FileUploadUtil fileUploadUtil;
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     private static final int MAX_DOCUMENTS_PER_EQUIPMENT = 20;
     private static final int MAX_PHOTOS_PER_EQUIPMENT = 30;
@@ -144,6 +157,51 @@ public class FileService {
         photo.setIsDeleted(true);
         photo.setDeletedAt(LocalDateTime.now());
         photoRepository.save(photo);
+    }
+
+    // ======================== FAYL SERVE ========================
+
+    /** Foto faylni serve qilish */
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> getPhotoFile(Long photoId) {
+        Photo photo = photoRepository.findById(photoId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResourceNotFoundException("Foto topilmadi: " + photoId));
+        return serveFile(photo.getFilePath(), photo.getFileName());
+    }
+
+    /** Hujjat faylni serve qilish */
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> getDocumentFile(Long documentId) {
+        Document document = documentRepository.findById(documentId)
+                .filter(d -> !d.getIsDeleted())
+                .orElseThrow(() -> new ResourceNotFoundException("Hujjat topilmadi: " + documentId));
+        return serveFile(document.getFilePath(), document.getName());
+    }
+
+    /** Faylni diskdan o'qib serve qilish */
+    private ResponseEntity<Resource> serveFile(String filePath, String fileName) {
+        try {
+            Path path = Paths.get(uploadDir).resolve(filePath);
+            Resource resource = new UrlResource(path.toUri());
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new ResourceNotFoundException("Fayl topilmadi: " + filePath);
+            }
+
+            // Content type aniqlash
+            String contentType = Files.probeContentType(path);
+            if (contentType == null) contentType = "application/octet-stream";
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            contentType.startsWith("image/") ?
+                                    "inline; filename=\"" + (fileName != null ? fileName : path.getFileName().toString()) + "\"" :
+                                    "attachment; filename=\"" + (fileName != null ? fileName : path.getFileName().toString()) + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw new ResourceNotFoundException("Faylni o'qishda xato: " + e.getMessage());
+        }
     }
 
     // ======================== YORDAMCHI ========================

@@ -212,6 +212,29 @@ export default function EquipmentListPage() {
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
+  // QR Modal State
+  const [qrModal, setQrModal] = useState({ isOpen: false, id: null, url: null, loading: false });
+
+  const handleShowQr = async (id, invNum) => {
+    setQrModal({ isOpen: true, id, url: null, loading: true, invNum });
+    try {
+      // Birinchi navbatda generatsiya qilib qo'yishga ishonch hosil qilamiz
+      await equipmentService.generateQrCode(id);
+      // Keyin blobni tortib olamiz
+      const res = await equipmentService.downloadQrCode(id);
+      const url = URL.createObjectURL(new Blob([res.data]));
+      setQrModal(prev => ({ ...prev, url, loading: false }));
+    } catch {
+      toast.error('QR-kod yuklashda xato');
+      setQrModal(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const closeQrModal = () => {
+    if (qrModal.url) URL.revokeObjectURL(qrModal.url);
+    setQrModal({ isOpen: false, id: null, url: null, loading: false });
+  };
+
   return (
     <div style={{ padding: '32px', width: '100%', maxWidth: '1600px', margin: '0 auto', boxSizing: 'border-box' }} className="animate-fade-in">
       {/* Premium Header */}
@@ -375,7 +398,7 @@ export default function EquipmentListPage() {
                             <HiOutlinePencilSquare style={{ fontSize: '20px' }} />
                           </button>
                         )}
-                        <button onClick={() => handleGenerateQr(eq.id)} style={{ padding: '8px', borderRadius: '12px', border: 'none', background: 'transparent', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-violet-50 hover:text-violet-600" title="QR-kod">
+                        <button onClick={() => handleShowQr(eq.id, eq.inventoryNumber)} style={{ padding: '8px', borderRadius: '12px', border: 'none', background: 'transparent', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s' }} className="hover:bg-violet-50 hover:text-violet-600" title="QR-kod ko'rish">
                           <HiOutlineQrCode style={{ fontSize: '20px' }} />
                         </button>
                         {isOperator && (
@@ -420,6 +443,37 @@ export default function EquipmentListPage() {
           </div>
         )}
       </div>
+
+      {/* QR Modal */}
+      {qrModal.isOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(4px)' }} className="animate-fade-in">
+          <div style={{ background: '#fff', borderRadius: '24px', padding: '32px', width: '90%', maxWidth: '400px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', position: 'relative' }} className="animate-slide-up">
+            <button onClick={closeQrModal} style={{ position: 'absolute', top: '16px', right: '16px', padding: '8px', background: '#f8fafc', border: 'none', borderRadius: '50%', color: '#64748b', cursor: 'pointer' }} className="hover:bg-slate-200">
+              <HiOutlineXMark style={{ fontSize: '20px' }} />
+            </button>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '0 0 24px 0', textAlign: 'center' }}>
+              QR Kod
+              <div style={{ fontSize: '14px', fontWeight: 500, color: '#64748b', marginTop: '4px' }}>Inv №: {qrModal.invNum}</div>
+            </h3>
+            
+            <div style={{ width: '100%', aspectRatio: '1/1', background: '#f8fafc', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', overflow: 'hidden' }}>
+              {qrModal.loading ? (
+                <div className="animate-spin" style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%' }} />
+              ) : qrModal.url ? (
+                <img src={qrModal.url} alt="QR Code" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+              ) : (
+                <span style={{ color: '#94a3b8' }}>Xato yuz berdi</span>
+              )}
+            </div>
+
+            {qrModal.url && (
+              <a href={qrModal.url} download={`qr_${qrModal.invNum}.png`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '12px', background: '#3b82f6', color: '#fff', textDecoration: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: 700, transition: 'background 0.2s' }} className="hover:bg-blue-600">
+                Yuklab olish
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

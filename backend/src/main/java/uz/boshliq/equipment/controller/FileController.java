@@ -1,7 +1,11 @@
 package uz.boshliq.equipment.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +16,7 @@ import uz.boshliq.equipment.dto.PhotoResponse;
 import uz.boshliq.equipment.entity.User;
 import uz.boshliq.equipment.service.FileService;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -55,6 +60,13 @@ public class FileController {
         return ResponseEntity.noContent().build();
     }
 
+    /** Hujjat faylni yuklab olish */
+    @GetMapping("/documents/{documentId}/file")
+    public ResponseEntity<Resource> downloadDocument(@PathVariable Long equipmentId,
+                                                     @PathVariable Long documentId) {
+        return fileService.getDocumentFile(documentId);
+    }
+
     // ======================== FOTOSURATLAR ========================
 
     /** Uskuna fotosuratlar galereyasi */
@@ -84,4 +96,12 @@ public class FileController {
         fileService.deletePhoto(photoId);
         return ResponseEntity.noContent().build();
     }
+
+    /** Foto faylni ko'rsatish (image serve) */
+    @GetMapping("/photos/{photoId}/file")
+    public ResponseEntity<Resource> getPhotoFile(@PathVariable Long equipmentId,
+                                                 @PathVariable Long photoId) {
+        return fileService.getPhotoFile(photoId);
+    }
 }
+

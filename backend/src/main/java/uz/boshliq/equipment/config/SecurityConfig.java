@@ -46,6 +46,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/*/photos/*/file").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/equipment/*/documents/*/file").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/qr/**").permitAll()
                         // Qolgan barcha endpointlar autentifikatsiya talab qiladi
                         .anyRequest().authenticated()
                 )
