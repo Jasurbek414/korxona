@@ -27,14 +27,21 @@ class ApiClient {
         return handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401) {
+        if (error.response?.statusCode == 401 &&
+            error.requestOptions.headers['_retried'] != true) {
           final refreshed = await _refreshToken();
           if (refreshed) {
-            // Qayta urinish
+            // Qayta urinish (1 marta)
             final token = await _storage.read(key: AppConstants.accessTokenKey);
             error.requestOptions.headers['Authorization'] = 'Bearer $token';
-            final response = await dio.fetch(error.requestOptions);
-            return handler.resolve(response);
+            error.requestOptions.headers['_retried'] = true;
+            try {
+              final response = await dio.fetch(error.requestOptions);
+              return handler.resolve(response);
+            } catch (_) {
+              await logout();
+              return handler.next(error);
+            }
           } else {
             await logout();
           }

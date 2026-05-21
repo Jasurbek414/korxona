@@ -210,8 +210,8 @@ class ChecklistItem {
 
   factory ChecklistItem.fromJson(Map<String, dynamic> json) => ChecklistItem(
         id: json['id'] ?? 0,
-        description: json['description'] ?? json['itemText'] ?? '',
-        completed: json['completed'] ?? json['checked'] ?? false,
+        description: json['itemText'] ?? json['description'] ?? '',
+        completed: json['isCompleted'] ?? json['completed'] ?? json['checked'] ?? false,
         notes: json['notes'],
       );
 }

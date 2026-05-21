@@ -89,10 +89,14 @@ final dashboardKpiProvider = FutureProvider<DashboardKpi>((ref) async {
 // ===== Equipment =====
 final equipmentListProvider = FutureProvider.family<List<Equipment>, Map<String, dynamic>>((ref, params) async {
   final api = ref.read(apiProvider);
-  final res = await api.dio.get('/equipment', queryParameters: params);
-  final data = res.data;
-  final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
-  return content.map((e) => Equipment.fromJson(e)).toList();
+  try {
+    final res = await api.dio.get('/equipment', queryParameters: params);
+    final data = res.data;
+    final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
+    return content.map((e) => Equipment.fromJson(e)).toList();
+  } catch (e) {
+    throw Exception('Uskunalar yuklanmadi: $e');
+  }
 });
 
 final equipmentDetailProvider = FutureProvider.family<Equipment, int>((ref, id) async {
