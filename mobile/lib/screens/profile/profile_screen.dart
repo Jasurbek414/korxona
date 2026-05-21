@@ -54,17 +54,6 @@ class ProfileScreen extends ConsumerWidget {
                           const SizedBox(height: 14),
                           Text(user.fullName, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
                           const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              user.isAdmin ? '👑 Administrator' : '🔧 ${user.role}',
-                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
-                            ),
-                          ),
                         ],
                       ),
                     ),
@@ -104,6 +93,13 @@ class ProfileScreen extends ConsumerWidget {
                   subtitle: 'Barcha arizalaringiz',
                   color: AppTheme.info,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RequestsScreen())),
+                ),
+                _ActionCard(
+                  icon: Icons.edit_rounded,
+                  label: 'Ma\'lumotlarni tahrirlash',
+                  subtitle: 'F.I.O., Email, Telefon',
+                  color: AppTheme.primary,
+                  onTap: () => _showEditProfileDialog(context, user, ref),
                 ),
                 _ActionCard(
                   icon: Icons.lock_rounded,
@@ -178,6 +174,60 @@ class ProfileScreen extends ConsumerWidget {
             child: const Text('Chiqish'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context, dynamic user, WidgetRef ref) {
+    final nameCtrl = TextEditingController(text: user.fullName);
+    final emailCtrl = TextEditingController(text: user.email);
+    final phoneCtrl = TextEditingController(text: user.phone);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(24, 24, 24, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppTheme.textMuted.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)))),
+            const SizedBox(height: 20),
+            const Text('✏️ Shaxsiy ma\'lumotlarni tahrirlash', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 20),
+            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'F.I.O.', prefixIcon: Icon(Icons.person_outline))),
+            const SizedBox(height: 14),
+            TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined))),
+            const SizedBox(height: 14),
+            TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'Telefon', prefixIcon: Icon(Icons.phone_outlined))),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () async {
+                  try {
+                    await ApiClient().dio.put('/profile', data: {
+                      'fullName': nameCtrl.text,
+                      'email': emailCtrl.text,
+                      'phone': phoneCtrl.text,
+                    });
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(content: Text('✅ Ma\'lumotlar saqlandi'), backgroundColor: AppTheme.success));
+                      ref.read(authProvider.notifier).loadProfile();
+                    }
+                  } catch (e) {
+                    if (ctx.mounted) ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text('Xato: $e'), backgroundColor: AppTheme.danger));
+                  }
+                },
+                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                child: const Text('Saqlash', style: TextStyle(fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
