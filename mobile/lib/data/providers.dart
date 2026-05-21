@@ -97,11 +97,14 @@ final dashboardKpiProvider = FutureProvider<DashboardKpi>((ref) async {
   return DashboardKpi.fromJson(res.data);
 });
 
-// ===== Equipment =====
-final equipmentListProvider = FutureProvider.family<List<Equipment>, Map<String, dynamic>>((ref, params) async {
+typedef ListParams = ({int page, int size, String search, bool? assignedToMe, bool? overdue, String? status});
+
+final equipmentListProvider = FutureProvider.family<List<Equipment>, ListParams>((ref, params) async {
   final api = ref.read(apiProvider);
   try {
-    final res = await api.dio.get('/equipment', queryParameters: params);
+    final query = <String, dynamic>{'page': params.page, 'size': params.size};
+    if (params.search.isNotEmpty) query['search'] = params.search;
+    final res = await api.dio.get('/equipment', queryParameters: query);
     final data = res.data;
     final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
     return content.map((e) => Equipment.fromJson(e)).toList();
@@ -127,9 +130,15 @@ final statusHistoryProvider = FutureProvider.family<List<StatusHistory>, int>((r
 });
 
 // ===== PPR Tasks =====
-final pprTasksProvider = FutureProvider.family<List<PprTask>, Map<String, dynamic>>((ref, params) async {
+final pprTasksProvider = FutureProvider.family<List<PprTask>, ListParams>((ref, params) async {
   final api = ref.read(apiProvider);
-  final res = await api.dio.get('/ppr/tasks', queryParameters: params);
+  final query = <String, dynamic>{'page': params.page, 'size': params.size};
+  if (params.search.isNotEmpty) query['search'] = params.search;
+  if (params.assignedToMe == true) query['assignedToMe'] = true;
+  if (params.overdue == true) query['overdue'] = true;
+  if (params.status != null) query['status'] = params.status;
+  
+  final res = await api.dio.get('/ppr/tasks', queryParameters: query);
   final data = res.data;
   final content = data is Map ? (data['content'] as List?) ?? [] : data as List;
   return content.map((e) => PprTask.fromJson(e)).toList();

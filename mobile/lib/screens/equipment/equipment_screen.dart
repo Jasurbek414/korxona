@@ -18,7 +18,7 @@ class _EquipmentListScreenState extends ConsumerState<EquipmentListScreen> {
   @override
   void dispose() { _searchController.dispose(); super.dispose(); }
 
-  Map<String, dynamic> get _params => {'page': 0, 'size': 100, if (_search.isNotEmpty) 'search': _search};
+  ListParams get _params => (page: 0, size: 100, search: _search, assignedToMe: null, overdue: null, status: null);
 
   @override
   Widget build(BuildContext context) {

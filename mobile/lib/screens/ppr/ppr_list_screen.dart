@@ -33,19 +33,20 @@ class _PprListScreenState extends ConsumerState<PprListScreen> with SingleTicker
     super.dispose();
   }
 
-  Map<String, dynamic> _params(int tabIndex) {
-    final params = <String, dynamic>{'page': 0, 'size': 50};
-    if (_search.isNotEmpty) params['search'] = _search;
+  ListParams _params(int tabIndex) {
+    bool? assignedToMe;
+    bool? overdue;
+    String? status;
 
     switch (tabIndex) {
       case 0: break; // Barchasi
-      case 1: params['assignedToMe'] = true; break; // Meniki
-      case 2: params['overdue'] = true; break; // Muddati o'tgan
-      case 3: params['status'] = 'SCHEDULED'; break;
-      case 4: params['status'] = 'IN_PROGRESS'; break;
-      case 5: params['status'] = 'COMPLETED'; break;
+      case 1: assignedToMe = true; break; // Meniki
+      case 2: overdue = true; break; // Muddati o'tgan
+      case 3: status = 'SCHEDULED'; break;
+      case 4: status = 'IN_PROGRESS'; break;
+      case 5: status = 'COMPLETED'; break;
     }
-    return params;
+    return (page: 0, size: 50, search: _search, assignedToMe: assignedToMe, overdue: overdue, status: status);
   }
 
   @override
