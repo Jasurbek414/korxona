@@ -50,16 +50,33 @@ class _EquipmentListScreenState extends ConsumerState<EquipmentListScreen> {
         onRefresh: () async => ref.invalidate(equipmentListProvider(_params)),
         child: listAsync.when(
           data: (items) => items.isEmpty
-              ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.computer_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)), const SizedBox(height: 12), const Text('Uskunalar topilmadi', style: TextStyle(color: AppTheme.textMuted))]))
-              : ListView.builder(padding: const EdgeInsets.all(16), itemCount: items.length, itemBuilder: (_, i) => _EquipmentCard(equipment: items[i], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EquipmentDetailScreen(id: items[i].id))))),
+              ? ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                    Icon(Icons.computer_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+                    const SizedBox(height: 12),
+                    const Text('Uskunalar topilmadi', style: TextStyle(color: AppTheme.textMuted), textAlign: TextAlign.center),
+                  ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: items.length,
+                  itemBuilder: (_, i) => _EquipmentCard(equipment: items[i], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EquipmentDetailScreen(id: items[i].id)))),
+                ),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, s) => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.danger),
-            const SizedBox(height: 12),
-            Text('Xato: $e', style: const TextStyle(color: AppTheme.danger, fontSize: 12), textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            OutlinedButton(onPressed: () => ref.invalidate(equipmentListProvider(_params)), child: const Text('Qayta urinish')),
-          ])),
+          error: (e, s) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+              const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.danger),
+              const SizedBox(height: 12),
+              Text('Xato: $e', style: const TextStyle(color: AppTheme.danger, fontSize: 12), textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              Center(child: OutlinedButton(onPressed: () => ref.invalidate(equipmentListProvider(_params)), child: const Text('Qayta urinish'))),
+            ],
+          ),
         ),
       ),
     );

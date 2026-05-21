@@ -100,27 +100,37 @@ class _PprListScreenState extends ConsumerState<PprListScreen> with SingleTicker
             onRefresh: () async => ref.invalidate(pprTasksProvider(_params(tabIndex))),
             child: tasksAsync.when(
               data: (tasks) => tasks.isEmpty
-                  ? ListView(children: [
-                      SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-                      Column(children: [
-                        Icon(Icons.assignment_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
-                        const SizedBox(height: 12),
-                        const Text('Vazifalar topilmadi', style: TextStyle(color: AppTheme.textMuted, fontSize: 14)),
-                      ]),
-                    ])
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                        Column(children: [
+                          Icon(Icons.assignment_rounded, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.3)),
+                          const SizedBox(height: 12),
+                          const Text('Vazifalar topilmadi', style: TextStyle(color: AppTheme.textMuted, fontSize: 14)),
+                        ]),
+                      ],
+                    )
                   : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       itemCount: tasks.length,
                       itemBuilder: (_, i) => _TaskCard(task: tasks[i]),
                     ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.danger),
-                const SizedBox(height: 12),
-                Text('$e', style: const TextStyle(color: AppTheme.danger, fontSize: 12), textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                OutlinedButton(onPressed: () => ref.invalidate(pprTasksProvider(_params(tabIndex))), child: const Text('Qayta urinish')),
-              ])),
+              error: (e, s) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                  Column(mainAxisSize: MainAxisSize.min, children: [
+                    const Icon(Icons.cloud_off_rounded, size: 48, color: AppTheme.danger),
+                    const SizedBox(height: 12),
+                    Text('$e', style: const TextStyle(color: AppTheme.danger, fontSize: 12), textAlign: TextAlign.center),
+                    const SizedBox(height: 12),
+                    OutlinedButton(onPressed: () => ref.invalidate(pprTasksProvider(_params(tabIndex))), child: const Text('Qayta urinish')),
+                  ]),
+                ],
+              ),
             ),
           );
         }),

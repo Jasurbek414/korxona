@@ -57,6 +57,16 @@ void main() async {
       data: {'username': 'admin', 'password': 'Admin123!'},
     );
     print('Tunnel LOGIN SUCCESS! Token received.');
+    final tunToken = tunRes.data['accessToken'];
+
+    print('\nFetching equipment list from Tunnel...');
+    final tunEq = await dio.get(
+      'https://boshliq-api.ecos.uz/api/v1/equipment?page=0&size=100',
+      options: Options(headers: {'Authorization': 'Bearer $tunToken'}),
+    );
+    print('Tunnel Total equipment: ${tunEq.data['totalElements']}');
+    final tunContent = tunEq.data['content'] as List;
+    print('Tunnel items returned: ${tunContent.length}');
     
   } catch (e) {
     if (e is DioException) {

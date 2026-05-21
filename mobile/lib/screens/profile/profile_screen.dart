@@ -60,7 +60,6 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              title: Text(user.fullName, style: const TextStyle(fontSize: 16)),
             ),
             foregroundColor: Colors.white,
           ),
